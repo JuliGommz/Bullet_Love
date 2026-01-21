@@ -1,0 +1,142 @@
+# Projekt-Anforderungen: 2-Player Top-Down Bullet-Hell
+
+**Quelle**: Arbeitsauftrag SRH Hochschule  
+**Technologie**: Unity 6000.0.62f1 + FishNet  
+**Arbeitsform**: Einzelarbeit oder 2er-Team  
+**Abgabedatum**: 23.01.2026  
+**Abgabeform**: GitHub-Repository (Ã¶ffentlich)
+
+---
+
+## Pflichtanforderungen (80 Punkte)
+
+### 1. Multiplayer-Basis (FishNet) â€“ 10 Punkte
+- [ ] FishNet korrekt im Unity-Projekt eingerichtet
+- [ ] Host/Client-Verbindung mÃ¶glich
+- [ ] Zwei Instanzen kÃ¶nnen sich stabil verbinden
+- [ ] NetworkManager korrekt konfiguriert
+
+### 2. Spielersteuerung & Synchronisation â€“ 15 Punkte
+- [ ] Top-Down-Bewegung (WASD, Controller optional)
+- [ ] Spieler als NetworkObject mit NetworkBehaviour
+- [ ] Ownership korrekt gesetzt (nur eigener Spieler steuerbar)
+- [ ] Spielerbewegung server-authoritativ synchronisiert
+- [ ] Mindestens eine SyncVar (Name, HP, Farbe)
+
+### 3. SchieÃŸen & Bullet-Hell-Mechaniken â€“ 20 Punkte
+- [ ] NetzwerkfÃ¤higes Projektilsystem
+- [ ] Mindestens zwei unterschiedliche Bullet-Patterns (gerader Schuss, Spread-Shot)
+- [ ] Projektile korrekt synchronisiert
+- [ ] Feuerrate/Cooldown-System vorhanden
+- [ ] Treffererkennung und Schaden auf beiden Clients korrekt
+
+### 4. Gegner-, Wave- oder Boss-System â€“ 15 Punkte
+- [ ] Mindestens zwei unterschiedliche Gegnertypen
+- [ ] Gegner serverseitig gespawnt
+- [ ] ENTWEDER Boss ODER Wave-Struktur
+- [ ] Gegner- und Boss-Bullets auf beiden Clients konsistent sichtbar
+
+### 5. Leben, Treffer & Spielablauf â€“ 10 Punkte
+- [ ] HP- oder Lebenssystem vorhanden
+- [ ] Schaden und Treffer korrekt synchronisiert
+- [ ] Klarer Gameflow: Start â†’ Spiel â†’ Game Over/Victory â†’ Endscreen/Restart
+
+### 6. HUD & Punkte â€“ 10 Punkte
+- [ ] HUD mit HP/Leben
+- [ ] HUD mit Score
+- [ ] Punktevergabe fÃ¼r Kills und/oder Ãœberlebenszeit
+- [ ] Score synchronisiert und korrekt angezeigt
+- [ ] **Highscore-Liste Ã¼ber PHP & SQL (serverseitig)**
+
+**Summe Pflicht**: 80 Punkte
+
+---
+
+## Bonusfeatures (max. 20 Punkte)
+
+**WICHTIG**: Alle Bonusfeatures mÃ¼ssen in README.md dokumentiert sein.  
+Maximal 20 Bonuspunkte werden angerechnet (unabhÃ¤ngig von Anzahl).
+
+### A) Lobby- & Matchmaking-System (5â€“10 Punkte)
+- Lobby vor Spielstart
+- Anzeige verbundener Spieler
+- Ready-System
+- Gemeinsamer Szenenwechsel
+- Referenz: https://github.com/Patrick-van-Halm/FishNetworking-LobbySystem
+
+### B) Power-Ups & Spielmechaniken (5â€“10 Punkte)
+- Shields, Laser, Bomben, Slow-Motion
+- Unterschiedliche Spielerklassen (Tank/Schnell/SchÃ¼tze)
+
+### C) Komplexere Bullet-Patterns (5â€“10 Punkte)
+- Spiralen, Ringe, Rotations- oder Orbit-Bullets
+
+### D) Erweiterte Persistenz (5â€“10 Punkte)
+- Highscore-Listen
+- JSON-basierte Speicherung
+- Mehrere gespeicherte Statistiken
+
+### E) Koop-/Versus-Elemente (5â€“10 Punkte)
+- Gemeinsamer Spezialangriff
+- Combo-System
+- Freund-/Feind-SchÃ¼sse
+
+### F) Visuelle & technische Verbesserungen (5â€“10 Punkte)
+- Prediction/Interpolation
+- Synchronisierte VFX & SFX
+- Kameraeffekte (Zoom, Screenshake, Post-Processing)
+
+---
+
+## README.md Pflichtinhalte
+
+Die README.md im Repository-Root muss enthalten:
+
+- [ ] Kurzbeschreibung des Spiels
+- [ ] Anleitung zum Starten von Host und Client
+- [ ] Technischer Ãœberblick
+  - Verwendete RPCs
+  - Verwendete SyncVars
+  - Bullet-Logik
+  - Gegner-Logik
+- [ ] Beschreibung der Persistenz (PHP/SQL, JSON, PlayerPrefs)
+- [ ] Ãœbersicht umgesetzter Bonusfeatures
+- [ ] Bekannte Bugs oder EinschrÃ¤nkungen
+
+---
+
+## GitHub-Abgabe Anforderungen
+
+- [ ] Ã–ffentliches GitHub-Repository
+- [ ] Repository-Name: frei wÃ¤hlbar, eindeutig
+- [ ] Link wird zur Abgabe eingereicht
+- [ ] Repository enthÃ¤lt:
+  - Unity-Projekt (ohne Build-Artefakte)
+  - VollstÃ¤ndige README.md im Root
+- [ ] Saubere Ordnerstruktur
+- [ ] VerstÃ¤ndliche Commit-Nachrichten
+- [ ] RegelmÃ¤ÃŸige Commits
+
+---
+
+## Bewertungstabelle
+
+| Kriterium | Beschreibung | Punkte |
+|-----------|-------------|--------|
+| Multiplayer-Basis | Funktionierende Host/Client, NetworkManager | 10 |
+| Player-Steuerung | Top-Down Movement, Ownership, SyncVars, Sync | 15 |
+| Bullet-Hell Shooting | 2+ Patterns, Netzwerk, Treffer, Cooldowns | 20 |
+| Gegner, Waves & Boss | 2+ Typen, Server-Spawn, Boss oder Waves | 15 |
+| Leben & Gameflow | HP-System, Schaden, Game Over/Victory | 10 |
+| HUD & Score | HP/Score sichtbar, synchronisiert | 10 |
+| Bonusfeatures | Dokumentierte Zusatzfeatures | 20 |
+| **GESAMT** | | **100** |
+
+---
+
+## Notizen zu Bewertungskriterien
+
+- Ordnerstruktur flieÃŸt in Bewertung ein
+- Commit-Historie wird bewertet
+- RegelmÃ¤ÃŸige Commits sind erwartet
+- README.md ist Pflicht (keine Punkte ohne)

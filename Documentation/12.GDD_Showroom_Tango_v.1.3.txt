@@ -1,0 +1,2656 @@
+\# BULLET\_LOVE - Game Design Document v1.3
+
+
+
+\*\*Project:\*\* Bullet\_Love (formerly Showroom Tango)  
+
+\*\*Type:\*\* 2-Player Cooperative Bullet-Hell  
+
+\*\*Platform:\*\* Unity 6000.0.62f1 + FishNet 4.x Networking  
+
+\*\*Timeline:\*\* 10 workdays (Due: January 23, 2026)  
+
+\*\*Academic Context:\*\* PRG Course, SRH Hochschule Heidelberg  
+
+\*\*Developer:\*\* Julian Gomez  
+
+\*\*Last Updated:\*\* January 14, 2026  
+
+\*\*Version History:\*\* v1.0 (Dec 17), v1.1 (Dec 20), v1.2 (Jan 8), v1.3 (Jan 14)
+
+
+
+---
+
+
+
+\## EXECUTIVE SUMMARY
+
+
+
+\### Core Concept
+
+Cooperative top-down bullet-hell shooter where 2 players fight waves of enemies on a shared screen. Inspired by Stranger Things aesthetic (neon-glow on black background) and Brotato's auto-fire progression system.
+
+
+
+\### Unique Selling Points
+
+\- \*\*Neon Retrofuturistic Visual Style:\*\* Dual-sprite glow system with Stranger Things-inspired aesthetics
+
+\- \*\*Brotato-Inspired Auto-Fire:\*\* Multi-weapon slots with priority targeting (no manual aiming)
+
+\- \*\*Collectible-Based Progression:\*\* Weapon unlocks + upgrade pickups during gameplay
+
+\- \*\*Time-Boxed Survival:\*\* 5 levels with 60-second timers (not endless)
+
+\- \*\*Cooperative Shared-Screen:\*\* Both players visible simultaneously, shared challenge
+
+
+
+\### Victory Condition
+
+Survive all 5 levels within time limits
+
+
+
+\### Core Loop
+
+```
+
+Dodge bullets â†’ Auto-fire at enemies â†’ Collect upgrades â†’ 
+
+Survive level â†’ Progress to next level
+
+```
+
+
+
+\### Emotional Core
+
+"Two players dodge glowing red bullets in a sea of neon chaos, their three auto-firing lasers painting trails across the darkness as enemy ships explode in bursts of purple light. The timer ticks down. Wave 4 begins. They exchange a glanceâ€”time to survive."
+
+
+
+\*\*Inspirational Music:\*\* SeÃ±or Coconut - "El Baile AlemÃ¡n" (Kraftwerk cover)
+
+
+
+---
+
+## 1. GAMEPLAY OVERVIEW
+
+
+
+\### 1.1 Game Mode: Cooperative Survival (2 Players)
+
+
+
+\*\*Network Architecture:\*\*
+
+\- Host + Client multiplayer (FishNet networking)
+
+\- Shared screen (both players visible simultaneously)
+
+\- Server-authoritative gameplay (host is server)
+
+\- Synchronized wave progression
+
+
+
+\*\*Session Structure:\*\*
+
+1\. Connection Phase (Host/Client buttons)
+
+2\. Scene loads (Game.unity)
+
+3\. Players spawn with 1 starting weapon
+
+4\. Level 1 begins (60-second timer starts)
+
+5\. Enemies spawn from multiple points
+
+6\. Players fight, collect upgrades
+
+7\. Level timer expires â†’ Pause screen
+
+8\. "Next Level" button â†’ Level 2
+
+9\. Repeat for 5 levels total
+
+10\. Victory after Level 5 OR Game Over if both players die
+
+
+
+---
+
+
+
+\### 1.2 Core Gameplay Loop
+
+
+
+\*\*Moment-to-Moment:\*\*
+
+```
+
+Player moves (WASD) â†’ Aims (mouse rotation) â†’ Auto-fires at enemies in range â†’ 
+
+Dodges enemy bullets â†’ Collects weapon/upgrade drops â†’ Survives level timer
+
+```
+
+
+
+\*\*Progression Loop:\*\*
+
+```
+
+Kill enemies â†’ Every 3rd kill drops collectible â†’ Unlock new weapon slot OR 
+
+upgrade fire rate/cooldown â†’ Repeat until 3 weapons equipped + upgrades maxed
+
+```
+
+
+
+\*\*Meta Loop:\*\*
+
+```
+
+Complete level â†’ Pause screen with stats â†’ Click "Next Level" â†’ 
+
+Higher difficulty (more enemies, faster spawns) â†’ Final level victory
+
+```
+
+
+
+\*\*Design Philosophy:\*\*
+
+\- \*\*Survive \& Thrive:\*\* Positioning-focused gameplay over twitch aim
+
+\- \*\*Cooperative Chaos:\*\* Shared screen, shared victory condition
+
+\- \*\*Accessible Depth:\*\* Auto-fire simplicity, multi-weapon tactical depth
+
+
+
+---
+
+
+
+\### 1.3 Level Structure (Updated v1.3)
+
+
+
+\*\*NEW: Level = Overarching Container, Waves = Sub-Spawns\*\*
+
+
+
+\*\*Previous Design (v1.2):\*\*
+
+\- 5 Waves = 5 separate gameplay segments
+
+\- Each wave spawned all enemies over 60 seconds
+
+\- No pause between waves
+
+
+
+\*\*Current Design (v1.3):\*\*
+
+\- 5 Levels (overarching units)
+
+\- Each level: 60-second timer
+
+\- Within each level: Multiple waves spawn from different spawn points
+
+\- Level end: Pause screen â†’ Player stats â†’ "Next Level" button
+
+
+
+\*\*Structure:\*\*
+
+```
+
+LEVEL 1 (60s countdown)
+
+&nbsp; â”œâ”€ Spawn Point North: Wave every 5s (5 enemies each)
+
+&nbsp; â”œâ”€ Spawn Point East: Wave every 8s (3 enemies each)
+
+&nbsp; â”œâ”€ Spawn Point South: Wave every 10s (10 enemies each)
+
+&nbsp; â””â”€ Timer expires â†’ LEVEL COMPLETE SCREEN
+
+&nbsp;       â†“
+
+&nbsp; Button: "Next Level"
+
+&nbsp;       â†“
+
+LEVEL 2 (60s countdown)
+
+&nbsp; â”œâ”€ Different spawn configurations...
+
+&nbsp; â””â”€ ...
+
+
+
+LEVEL 5 Complete â†’ VICTORY SCREEN
+
+```
+
+
+
+\*\*Pause Screen Content:\*\*
+
+\- Level number completed
+
+\- Total score this level
+
+\- Enemies defeated count
+
+\- Button: "Next Level" (server-authoritative, host clicks)
+
+
+
+---
+
+\## 2. PLAYER MECHANICS
+
+
+
+\### 2.1 Movement \& Controls
+
+
+
+\*\*Input Scheme:\*\*
+
+\- \*\*WASD:\*\* 8-directional movement
+
+\- \*\*Mouse:\*\* Aim direction (player rotates toward cursor)
+
+\- \*\*No manual fire button:\*\* Auto-fire system handles shooting
+
+
+
+\*\*Movement Stats:\*\*
+
+\- Speed: 5 units/second
+
+\- Rotation: Instant snap to mouse direction
+
+\- No acceleration/deceleration (arcade feel)
+
+
+
+\*\*Physics:\*\*
+
+\- Rigidbody2D with Dynamic mode
+
+\- No gravity (top-down perspective)
+
+\- Solid collider (collision with enemies)
+
+\- Collision layers: Player on Default, enemies detected
+
+
+
+\*\*Input System:\*\*
+
+\- Unity New Input System (not legacy)
+
+\- PlayerInput component on Player prefab
+
+\- InputActions asset: Movement (Vector2, WASD binding)
+
+
+
+---
+
+
+
+\### 2.2 Multi-Weapon Auto-Fire System
+
+
+
+\*\*Design Philosophy (Brotato-Inspired):\*\*
+
+\- Focus on positioning/dodging, not manual aiming
+
+\- Multiple weapons fire independently at different targets
+
+\- Each weapon targets different enemy (no overlap)
+
+\- Tactical depth through weapon choice + positioning
+
+
+
+\*\*Weapon Slots:\*\*
+
+\- \*\*Start:\*\* 1 weapon active (Blue Laser)
+
+\- \*\*Maximum:\*\* 3 weapons simultaneously
+
+\- \*\*Unlock:\*\* Collectible weapon pickups (every 3rd kill)
+
+
+
+\*\*Weapon Configurations:\*\*
+
+
+
+\*\*Weapon 1: Blue Laser (laserBlue01)\*\*
+
+```
+
+Fire Rate: 0.3s between shots
+
+Cooldown: 0.2s
+
+Range: 8 units
+
+Damage: 10
+
+Fire Position: Center (0, 0.5 offset)
+
+Direction: Straight ahead (0Â° offset)
+
+Target Priority: Nearest enemy
+
+Sprite: laserBlue01
+
+```
+
+
+
+\*\*Weapon 2: Spread Laser (laserBlue07)\*\*
+
+```
+
+Fire Rate: 0.35s
+
+Cooldown: 0.25s
+
+Range: 8 units
+
+Damage: 10
+
+Fire Position: Left side (-0.3, 0.5 offset)
+
+Direction: 30Â° left offset
+
+Target Priority: 2nd nearest enemy (or nearest if only 1)
+
+Sprite: laserBlue07
+
+```
+
+
+
+\*\*Weapon 3: Power Laser (laserBlue16)\*\*
+
+```
+
+Fire Rate: 0.4s
+
+Cooldown: 0.3s
+
+Range: 8 units
+
+Damage: 15
+
+Fire Position: Right side (0.3, 0.5 offset)
+
+Direction: 30Â° right offset
+
+Target Priority: 3rd nearest enemy (or nearest if < 3 enemies)
+
+Sprite: laserBlue16
+
+```
+
+
+
+\*\*Auto-Targeting Logic:\*\*
+
+1\. Detect all enemies within weapon range (Physics2D.OverlapCircleAll)
+
+2\. Sort by distance (nearest first)
+
+3\. Assign targets by weapon priority:
+
+&nbsp;  - Weapon 1 â†’ Nearest enemy
+
+&nbsp;  - Weapon 2 â†’ 2nd nearest (or nearest if only 1)
+
+&nbsp;  - Weapon 3 â†’ 3rd nearest (or nearest if only 1-2)
+
+4\. Calculate direction to target
+
+5\. Apply weapon's directional angle offset
+
+6\. Fire if cooldown elapsed
+
+
+
+\*\*Upgrade System:\*\*
+
+\- \*\*Fire Rate Upgrade:\*\* -0.05s per level (faster shooting)
+
+\- \*\*Cooldown Upgrade:\*\* -0.03s per level (reduced delay between shots)
+
+\- Upgrades apply to ALL equipped weapons simultaneously
+
+\- Acquired via collectible pickups
+
+
+
+\*\*Network Implementation:\*\*
+
+\- WeaponManager.cs handles all weapon logic (server + client)
+
+\- Lazy initialization for BulletPool (handles FishNet lifecycle)
+
+\- Server-authoritative firing (ServerRpc pattern)
+
+\- Bullet spawning via object pooling (no Instantiate lag)
+
+
+
+\*\*PLANNED v1.4: Multi-Shot Patterns\*\*
+
+```
+
+Additional SerializeFields per weapon:
+
+\- Bullets Per Shot: 1-12 simultaneous projectiles
+
+\- Fire Pattern: Straight / Spread / Circle
+
+\- Spread Angle: 0-180Â° (for Spread pattern)
+
+
+
+Pattern Examples:
+
+&nbsp; Shotgun: 5 bullets, Spread, 45Â° angle
+
+&nbsp; Ring Attack: 8 bullets, Circle pattern
+
+&nbsp; Focused Beam: 1 bullet, Straight
+
+```
+
+
+
+---
+
+
+
+\### 2.3 Visual Customization
+
+
+
+\*\*Player Colors (3 Choices):\*\*
+
+\- \*\*Blue:\*\* ufoBlue sprite, cyan glow (0, 179, 255)
+
+\- \*\*Green:\*\* ufoGreen sprite, neon green glow (57, 255, 20)
+
+\- \*\*Yellow:\*\* ufoYellow sprite, yellow glow (255, 255, 0)
+
+
+
+\*\*Neon Glow System (Dual-Sprite Rendering):\*\*
+
+
+
+\*\*Technical Implementation:\*\*
+
+```
+
+GameObject Hierarchy:
+
+&nbsp; Player
+
+&nbsp;   â”œâ”€ FillSprite (SpriteRenderer)
+
+&nbsp;   â”‚    Sprite: ufoBlue/Green/Yellow
+
+&nbsp;   â”‚    Color: White (untinted, preserves original art)
+
+&nbsp;   â”‚    Sorting Order: 1
+
+&nbsp;   â”‚    Material: Default
+
+&nbsp;   â”‚
+
+&nbsp;   â””â”€ GlowSprite (SpriteRenderer)
+
+&nbsp;        Sprite: Same as FillSprite
+
+&nbsp;        Color: Glow color (cyan/green/yellow) with alpha 0.8
+
+&nbsp;        Sorting Order: 0 (behind fill)
+
+&nbsp;        Scale: 1.15x larger than fill
+
+&nbsp;        Material: Particles/Standard Unlit, Additive blending
+
+```
+
+
+
+\*\*NeonGlowController.cs:\*\*
+
+\- Manages sprite swapping (not color tinting)
+
+\- Each color = different sprite file
+
+\- Glow color adjustable in Inspector
+
+\- Optional pulsing animation (sine wave scale/alpha)
+
+\- Pulsing patterns: Smooth sine, sharp pulse, heartbeat, breath
+
+
+
+\*\*Design Rationale:\*\*
+
+\- Sprite-swapping preserves original art fidelity
+
+\- Additive blending creates authentic neon effect
+
+\- Dual-sprite approach = better visual quality than single-sprite tinting
+
+\- Inspired by Stranger Things title sequence aesthetic
+
+
+
+---
+
+
+
+\## 3. COLLECTIBLE SYSTEM
+
+
+
+\### 3.1 Drop Mechanics
+
+
+
+\*\*Drop Trigger:\*\*
+
+\- Every 3rd enemy killed drops collectible
+
+\- Collectibles spawn at enemy death position
+
+\- Persist for 10 seconds (fade warning at 8s)
+
+\- Static kill counter tracked server-side
+
+
+
+\*\*Collectible Types:\*\*
+
+
+
+\*\*Type 1: Weapon Pickup\*\*
+
+```
+
+Visual: Weapon sprite + white glow
+
+Effect: Unlock next weapon slot (if < 3 weapons)
+
+Priority: Fills slots 1 â†’ 2 â†’ 3
+
+Sprite Examples: laserBlue01/07/16 icons
+
+Network: Server spawns, all clients see
+
+```
+
+
+
+\*\*Type 2: Upgrade Pickup\*\*
+
+```
+
+Visual: Star icon + cyan glow
+
+Effect: Apply upgrade to ALL weapons
+
+Variants:
+
+&nbsp; - Fire Rate +1 (faster shooting, -0.05s)
+
+&nbsp; - Cooldown -1 (reduced delay, -0.03s)
+
+Network: Server applies stat changes
+
+```
+
+
+
+\*\*Pickup Interaction:\*\*
+
+\- Collision-based (OnTriggerEnter2D)
+
+\- Immediate effect (no inventory system)
+
+\- Audio feedback (SFX + visual burst - planned)
+
+\- Synchronized across all clients
+
+
+
+\### 3.2 Progression Balance
+
+
+
+\*\*Target Progression Timeline:\*\*
+
+```
+
+Wave 1: 1 weapon, no upgrades (baseline difficulty)
+
+Wave 2: 2 weapons, 1 upgrade
+
+Wave 3: 3 weapons, 2 upgrades
+
+Wave 4+: 3 weapons, 3+ upgrades (soft cap)
+
+```
+
+
+
+\*\*Drop Rate Calculation:\*\*
+
+```
+
+Kill count: 3 enemies = 1 collectible guaranteed
+
+Level 1 spawn: ~60 enemies = ~20 collectibles
+
+Level 2 spawn: ~90 enemies = ~30 collectibles
+
+Level 3 spawn: ~120 enemies = ~40 collectibles
+
+```
+
+
+
+---
+
+
+
+\## 4. ENEMY SYSTEM
+
+
+
+\### 4.1 Enemy Types
+
+
+
+\*\*Enemy 1: Chaser (enemyBlack5 sprite)\*\*
+
+```
+
+Behavior: Follow nearest player
+
+Movement: Simple pathfinding (Vector2.MoveTowards)
+
+Speed: 3 units/second
+
+Attack: Collision damage (20 HP on contact)
+
+Health: 30 HP
+
+Visual: Red glow (255, 0, 0, alpha 200)
+
+Spawn Weight: 70% (common enemy)
+
+Score Value: 10 points
+
+
+
+AI Logic:
+
+&nbsp; 1. FindNearestPlayer() (checks both Player1 and Player2)
+
+&nbsp; 2. Calculate direction: (playerPos - enemyPos).normalized
+
+&nbsp; 3. Move: rb.MovePosition() with direction \* speed
+
+&nbsp; 4. OnCollisionEnter2D: Deal damage, self-destruct
+
+
+
+Network: Server-authoritative movement, NetworkTransform sync
+
+```
+
+
+
+\*\*Enemy 2: Shooter (enemyBlack1 sprite)\*\*
+
+```
+
+Behavior: Keep distance from player (ranged combat)
+
+Movement: Circle-strafe around player
+
+Speed: 2 units/second (slower than Chaser)
+
+Attack: Fire bullets every 2 seconds
+
+Bullet: EnemyBullet\_Basic (red laser, speed 8)
+
+Health: 20 HP (fragile but dangerous)
+
+Visual: Purple glow (170, 0, 200, alpha 200)
+
+Spawn Weight: 30% (elite enemy)
+
+Score Value: 10 points
+
+
+
+AI Logic:
+
+&nbsp; 1. FindNearestPlayer()
+
+&nbsp; 2. Calculate distance to player
+
+&nbsp; 3. If distance < 5 units: Move away (flee)
+
+&nbsp; 4. If distance > 7 units: Move closer
+
+&nbsp; 5. If 5-7 units: Circle-strafe (perpendicular movement)
+
+&nbsp; 6. Every 2 seconds: FireBullet() toward player direction
+
+
+
+Network: Server-authoritative AI, bullets spawned server-side
+
+```
+
+
+
+\### 4.2 Enemy AI Architecture
+
+
+
+\*\*Server-Authority Pattern:\*\*
+
+\- All AI calculations run ONLY on server (if !IsServer return)
+
+\- Clients see enemy positions via NetworkTransform sync
+
+\- Movement commands: Rigidbody2D.MovePosition() in FixedUpdate
+
+\- Hit detection: Server-side OnCollisionEnter2D / OnTriggerEnter2D
+
+
+
+\*\*Component Structure:\*\*
+
+```
+
+Enemy Prefab:
+
+&nbsp; â”œâ”€ SpriteRenderer (visual)
+
+&nbsp; â”œâ”€ Rigidbody2D (Dynamic, Gravity 0, Freeze Rotation Z)
+
+&nbsp; â”œâ”€ CircleCollider2D (Radius ~0.5, NOT trigger)
+
+&nbsp; â”œâ”€ NetworkObject (FishNet)
+
+&nbsp; â”œâ”€ NetworkTransform (Position sync only)
+
+&nbsp; â”œâ”€ EnemyHealth (HP system, death handling)
+
+&nbsp; â””â”€ EnemyChaser OR EnemyShooter (AI script)
+
+
+
+Layer: Enemy (Layer 6)
+
+Tag: Enemy
+
+```
+
+
+
+\*\*Death Handling:\*\*
+
+\- EnemyHealth.cs manages HP + death event
+
+\- Every 3rd kill: Logs collectible spawn point (Phase 5 implementation)
+
+\- Score awarded: 10 points (Phase 5 ScoreManager)
+
+\- ServerManager.Despawn(gameObject) removes from network
+
+
+
+\### 4.3 Enemy Spawning System (v1.3 UPDATE)
+
+
+
+\*\*MAJOR REFACTOR: Parallel Spawn Point System\*\*
+
+
+
+\*\*Old Design (v1.2):\*\*
+
+\- Sequential spawning (one enemy at a time)
+
+\- Random spawn point selection
+
+\- Single spawn interval for all enemies
+
+
+
+\*\*New Design (v1.3 - PLANNED):\*\*
+
+\- Parallel spawn threads per spawn point
+
+\- Each spawn point has independent configuration:
+
+&nbsp; - Spawn interval (seconds between waves)
+
+&nbsp; - Enemies per wave (quantity)
+
+&nbsp; - Enemy type distribution (Chaser/Shooter ratio)
+
+\- Multiple spawn points spawn simultaneously
+
+
+
+\*\*SpawnPointConfig Data Structure:\*\*
+
+```csharp
+
+\[Serializable]
+
+public class SpawnPointConfig
+
+{
+
+&nbsp;   // Position
+
+&nbsp;   public Vector2 position;           // Manual X/Y coordinates
+
+&nbsp;   public bool isActive;              // Enable/disable spawn point
+
+&nbsp;   
+
+&nbsp;   // Wave Settings
+
+&nbsp;   public float spawnInterval;        // Seconds between waves (e.g. 5s)
+
+&nbsp;   public int enemiesPerWave;         // Quantity per wave (e.g. 5)
+
+&nbsp;   
+
+&nbsp;   // Distribution
+
+&nbsp;   \[Range(0f, 1f)]
+
+&nbsp;   public float chaserWeight;         // 0 = only Shooters, 1 = only Chasers
+
+&nbsp;   
+
+&nbsp;   // Runtime (read-only)
+
+&nbsp;   public float nextSpawnTime;        // Next scheduled spawn
+
+&nbsp;   public int totalSpawned;           // Counter for this point
+
+}
+
+```
+
+
+
+\*\*EnemySpawner.cs Architecture:\*\*
+
+```csharp
+
+// Inspector Configuration
+
+\[SerializeField] private int currentLevel = 1;
+
+\[SerializeField] private int maxLevels = 5;
+
+\[SerializeField] private float levelDuration = 60f;
+
+\[SerializeField] private SpawnPointConfig\[] spawnPoints; // 8 points
+
+\[SerializeField] private GameObject chaserPrefab;
+
+\[SerializeField] private GameObject shooterPrefab;
+
+
+
+// Level Loop (Parallel Timer Checks)
+
+while (Time.time < levelEndTime)
+
+{
+
+&nbsp;   foreach (var spawnPoint in spawnPoints)
+
+&nbsp;   {
+
+&nbsp;       if (spawnPoint.isActive \&\& Time.time >= spawnPoint.nextSpawnTime)
+
+&nbsp;       {
+
+&nbsp;           SpawnWaveAtPoint(spawnPoint);
+
+&nbsp;           spawnPoint.nextSpawnTime = Time.time + spawnPoint.spawnInterval;
+
+&nbsp;       }
+
+&nbsp;   }
+
+&nbsp;   yield return null; // Check every frame
+
+}
+
+```
+
+
+
+\*\*Example Level Configuration:\*\*
+
+```
+
+Level 1 (60 seconds):
+
+&nbsp; Spawn Point 0 (North):
+
+&nbsp;   - Interval: 3s
+
+&nbsp;   - Quantity: 5 enemies
+
+&nbsp;   - Type: 70% Chaser
+
+&nbsp;   â†’ Total over 60s: ~100 enemies (20 waves Ã— 5)
+
+&nbsp; 
+
+&nbsp; Spawn Point 1 (East):
+
+&nbsp;   - Interval: 5s
+
+&nbsp;   - Quantity: 3 enemies
+
+&nbsp;   - Type: 100% Shooter
+
+&nbsp;   â†’ Total over 60s: ~36 enemies (12 waves Ã— 3)
+
+&nbsp; 
+
+&nbsp; Spawn Point 2 (South):
+
+&nbsp;   - Interval: 10s
+
+&nbsp;   - Quantity: 10 enemies
+
+&nbsp;   - Type: 100% Chaser
+
+&nbsp;   â†’ Total over 60s: ~60 enemies (6 waves Ã— 10)
+
+
+
+TOTAL LEVEL 1: ~196 enemies over 60 seconds
+
+```
+
+
+
+\*\*Network Implementation:\*\*
+
+\- Server-only spawning (OnStartServer)
+
+\- Coroutine-based level loop
+
+\- Timer synchronization via Time.time (server clock)
+
+\- GameObject.Instantiate() + ServerManager.Spawn() pattern
+
+
+
+\*\*Status:\*\* Documented, implementation planned for Day 5
+
+
+
+---
+
+
+
+\## 5. VISUAL DESIGN
+
+
+
+\### 5.1 Art Style
+
+
+
+\*\*Core Aesthetic:\*\*
+
+\- \*\*Stranger Things Inspired:\*\* Neon-on-black retrofuturism
+
+\- \*\*1980s Arcade Machine Feel:\*\* High contrast, vibrant glows
+
+\- \*\*Minimalist Approach:\*\* Sprites without textures, pure color
+
+\- \*\*Emotional Connection:\*\* SeÃ±or Coconut's "El Baile AlemÃ¡n" energy
+
+
+
+\*\*Color Palette:\*\*
+
+```
+
+Background: Pure black (0, 0, 0)
+
+Player Glows: Cyan (0, 179, 255), Neon Green (57, 255, 20), Yellow (255, 255, 0)
+
+Enemy Glows: Red (255, 0, 0), Purple (170, 0, 200)
+
+Player Bullets: White/Blue
+
+Enemy Bullets: Red
+
+UI: Cyan text, white accents
+
+```
+
+
+
+\### 5.2 Dual-Sprite Glow System (Technical)
+
+
+
+\*\*GameObject Structure:\*\*
+
+```
+
+Entity (Player/Enemy/Projectile)
+
+&nbsp; â”œâ”€ FillSprite (SpriteRenderer)
+
+&nbsp; â”‚    Order in Layer: 1 (front)
+
+&nbsp; â”‚    Color: White (preserves original sprite colors)
+
+&nbsp; â”‚    Material: Default (Sprites-Default)
+
+&nbsp; â”‚
+
+&nbsp; â””â”€ GlowSprite (SpriteRenderer)
+
+&nbsp;      Order in Layer: 0 (behind)
+
+&nbsp;      Scale: 1.15x of FillSprite
+
+&nbsp;      Color: Glow color with alpha 0.8
+
+&nbsp;      Material: Particles/Standard Unlit
+
+&nbsp;      Rendering Mode: Additive (blend mode)
+
+```
+
+
+
+\*\*Material Settings:\*\*
+
+\- Shader: Particles/Standard Unlit
+
+\- Rendering Mode: Additive
+
+\- Color Mode: Multiply
+
+\- Alpha: 0.8 (adjustable per entity)
+
+
+
+\*\*Sprite Assets:\*\*
+
+\- Source: Kenney Space Shooter Redux (CC0 License)
+
+\- Format: PNG with transparency
+
+\- Filter Mode: Point (no anti-aliasing, pixel-perfect)
+
+\- Sprite Mode: Multiple (sprite atlas)
+
+\- Mesh Type: Tight (optimized colliders)
+
+
+
+\*\*Optional Pulsing Animation:\*\*
+
+```
+
+Method: AnimationCurve-driven scale + alpha
+
+Patterns: 
+
+&nbsp; - Smooth Sine: sin(time \* speed)
+
+&nbsp; - Sharp Pulse: step function
+
+&nbsp; - Heartbeat: double-peak pattern
+
+&nbsp; - Breath: slow sine wave
+
+Speed: 0.1-5 Hz adjustable
+
+Application: Power-ups, collectibles, boss enemies (future)
+
+```
+
+
+
+\### 5.3 UI Design
+
+
+
+\*\*HUD Layout:\*\*
+
+```
+
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+
+â”‚ P1: â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ 100  1250    LEVEL 3/5    P2: â–ˆâ–ˆâ–ˆ 80  980 â”‚
+
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+
+```
+
+
+
+\*\*HUD Elements:\*\*
+
+```
+
+Player 1 Panel (Top-Left):
+
+&nbsp; - HP Bar: Horizontal bar, cyan fill, gradient fade
+
+&nbsp; - HP Text: "100" numeric value
+
+&nbsp; - Score: "1250" white text
+
+
+
+Player 2 Panel (Top-Right):
+
+&nbsp; - HP Bar: Horizontal bar, green fill
+
+&nbsp; - HP Text: "80" numeric value  
+
+&nbsp; - Score: "980" white text
+
+
+
+Wave Counter (Center-Top):
+
+&nbsp; - Text: "LEVEL 3/5"
+
+&nbsp; - Font Size: 36
+
+&nbsp; - Color: Cyan bold
+
+```
+
+
+
+\*\*Pause Screen (Level Complete):\*\*
+
+```
+
+Semi-transparent overlay (black, alpha 0.7)
+
+&nbsp; â”œâ”€ Title: "LEVEL X COMPLETE!"
+
+&nbsp; â”œâ”€ Stats: "Score: XXXX"
+
+&nbsp; â”œâ”€ Stats: "Enemies Defeated: XX"
+
+&nbsp; â””â”€ Button: "Next Level" (host-only clickable)
+
+```
+
+
+
+\*\*Victory/Game Over Screen:\*\*
+
+```
+
+Full-screen overlay
+
+&nbsp; â”œâ”€ Title: "VICTORY!" or "GAME OVER"
+
+&nbsp; â”œâ”€ Final Score display
+
+&nbsp; â””â”€ Button: "Restart" (reload scene)
+
+```
+
+
+
+\*\*Typography:\*\*
+
+\- Font: Doto Extra-Bold (futuristic, readable) OR Orbitron Bold
+
+\- Primary Text: White (#FFFFFF)
+
+\- Accent Text: Cyan (#00B3FF)
+
+\- Sizes: HUD 18pt, Level Counter 36pt, Title 72pt
+
+
+
+---
+
+
+
+\## 6. TECHNICAL ARCHITECTURE
+
+
+
+\### 6.1 Network Architecture (FishNet 4.x)
+
+
+
+\*\*Authority Model:\*\*
+
+```
+
+Server-Authoritative for:
+
+&nbsp; âœ“ Enemy spawning
+
+&nbsp; âœ“ Damage calculation
+
+&nbsp; âœ“ HP changes
+
+&nbsp; âœ“ Score tracking
+
+&nbsp; âœ“ Level progression
+
+&nbsp; âœ“ Collectible spawning
+
+&nbsp; âœ“ Game state transitions
+
+
+
+Client-Authoritative for:
+
+&nbsp; âœ“ Player input (movement, aim)
+
+&nbsp; âœ“ Visual effects (local-only VFX)
+
+&nbsp; âœ“ UI updates (reading SyncVars)
+
+```
+
+
+
+\*\*Synchronization:\*\*
+
+```
+
+NetworkObject Components:
+
+&nbsp; - Players
+
+&nbsp; - Enemies
+
+&nbsp; - Bullets
+
+&nbsp; - Collectibles
+
+
+
+NetworkTransform:
+
+&nbsp; - All moving entities
+
+&nbsp; - Position sync only (rotation optional)
+
+&nbsp; - Interpolation enabled
+
+
+
+SyncVars (FishNet 4.x syntax):
+
+&nbsp; - readonly SyncVar<string> playerName
+
+&nbsp; - readonly SyncVar<int> currentHP
+
+&nbsp; - readonly SyncVar<Color> playerColor
+
+&nbsp; - readonly SyncVar<int> score
+
+```
+
+
+
+\*\*RPC Pattern:\*\*
+
+```csharp
+
+// Client sends intent
+
+\[ServerRpc]
+
+void ShootServerRpc(Vector3 position, Quaternion rotation)
+
+{
+
+&nbsp;   // Server decides + spawns
+
+&nbsp;   GameObject bullet = bulletPool.GetBullet(position, rotation);
+
+&nbsp;   ServerManager.Spawn(bullet);
+
+&nbsp;   // All clients see bullet automatically via NetworkTransform
+
+}
+
+```
+
+
+
+\*\*Network Flow Example:\*\*
+
+```
+
+1\. Client: Player presses W (movement input)
+
+2\. Client: Update local position (instant feedback)
+
+3\. Client: No RPC needed (NetworkTransform handles sync)
+
+4\. Server: Receives position update via NetworkTransform
+
+5\. Server: Validates position (anti-cheat potential)
+
+6\. Other Clients: See updated position via NetworkTransform
+
+```
+
+
+
+\### 6.2 Object Pooling System
+
+
+
+\*\*Architecture:\*\*
+
+```csharp
+
+BulletPool (Per Bullet Type)
+
+&nbsp; â”œâ”€ Queue<GameObject> pool
+
+&nbsp; â”œâ”€ Transform poolParent (organization)
+
+&nbsp; â”œâ”€ int initialPoolSize (50-200)
+
+&nbsp; â””â”€ GameObject bulletPrefab (reference)
+
+
+
+Methods:
+
+&nbsp; - GetBullet(position, rotation): Dequeue or create new
+
+&nbsp; - ReturnBullet(bullet): Despawn + deactivate + enqueue
+
+&nbsp; - CreateNewBullet(): Instantiate + add to pool
+
+```
+
+
+
+\*\*Pooled Objects:\*\*
+
+```
+
+Player Bullets: 50-200 initial size (per weapon type)
+
+Enemy Bullets: 100-200 initial size
+
+Enemies: 30-50 initial size (optional pooling)
+
+```
+
+
+
+\*\*Lifecycle:\*\*
+
+```
+
+1\. GetBullet() â†’ Dequeue from pool (or create if empty)
+
+2\. SetActive(true) â†’ Enable GameObject
+
+3\. transform.position = spawnPos â†’ Position
+
+4\. ServerManager.Spawn() â†’ Network sync to all clients
+
+5\. \[Bullet flies, lifetime expires or collision]
+
+6\. ReturnBullet() called
+
+7\. ServerManager.Despawn(DespawnType.Pool) â†’ Network cleanup, keep GameObject
+
+8\. SetActive(false) â†’ Disable visuals
+
+9\. Enqueue() â†’ Return to pool for reuse
+
+```
+
+
+
+\*\*v1.3 UPDATE - Infinite Expansion Fix:\*\*
+
+```csharp
+
+// CRITICAL FIX (Planned Day 5)
+
+public GameObject GetBullet(Vector3 position, Quaternion rotation)
+
+{
+
+&nbsp;   GameObject bullet = null;
+
+&nbsp;   
+
+&nbsp;   // Null-check loop (prevents MissingReferenceException)
+
+&nbsp;   while (bullet == null \&\& pool.Count > 0)
+
+&nbsp;   {
+
+&nbsp;       GameObject candidate = pool.Dequeue();
+
+&nbsp;       if (candidate != null \&\& !candidate.activeInHierarchy)
+
+&nbsp;       {
+
+&nbsp;           bullet = candidate;
+
+&nbsp;           break;
+
+&nbsp;       }
+
+&nbsp;   }
+
+&nbsp;   
+
+&nbsp;   // Auto-expansion if no valid bullet found
+
+&nbsp;   if (bullet == null)
+
+&nbsp;   {
+
+&nbsp;       bullet = CreateNewBullet();
+
+&nbsp;       Debug.Log("\[BulletPool] Expanded pool");
+
+&nbsp;   }
+
+&nbsp;   
+
+&nbsp;   // Setup and spawn...
+
+}
+
+```
+
+
+
+\*\*Rationale:\*\*
+
+\- Prevents gameplay interruption (MissingReferenceException crashes)
+
+\- Allows dynamic pool growth during heavy combat
+
+\- Alternative: Pre-allocate 500+ bullets (memory-heavy but safer)
+
+
+
+\### 6.3 Data Architecture (ScriptableObjects)
+
+
+
+\*\*WeaponConfig.asset:\*\*
+
+```csharp
+
+\[CreateAssetMenu(fileName = "WeaponConfig", menuName = "Bullet\_Love/Weapon Config")]
+
+public class WeaponConfig : ScriptableObject
+
+{
+
+&nbsp;   \[Header("Visual")]
+
+&nbsp;   public Sprite bulletSprite;
+
+&nbsp;   public string weaponName;
+
+&nbsp;   
+
+&nbsp;   \[Header("Stats")]
+
+&nbsp;   public float baseFireRate = 0.3f;
+
+&nbsp;   public float baseCooldown = 0.2f;
+
+&nbsp;   public float range = 8f;
+
+&nbsp;   public int damage = 10;
+
+&nbsp;   
+
+&nbsp;   \[Header("Firing Position")]
+
+&nbsp;   public Vector2 firePointOffset = Vector2.zero;
+
+&nbsp;   public float directionAngleOffset = 0f;
+
+&nbsp;   
+
+&nbsp;   // Runtime upgrade tracking (not serialized)
+
+&nbsp;   \[System.NonSerialized] public int fireRateUpgrades = 0;
+
+&nbsp;   \[System.NonSerialized] public int cooldownUpgrades = 0;
+
+&nbsp;   
+
+&nbsp;   // Calculated properties
+
+&nbsp;   public float CurrentFireRate => baseFireRate - (fireRateUpgrades \* 0.05f);
+
+&nbsp;   public float CurrentCooldown => baseCooldown - (cooldownUpgrades \* 0.03f);
+
+}
+
+```
+
+
+
+\*\*Benefits:\*\*
+
+\- Designer-friendly tweaking (Inspector-based)
+
+\- No recompilation for balance changes
+
+\- Reusable configurations across prefabs
+
+\- Data/behavior separation (Clean Architecture principle)
+
+
+
+\### 6.4 Scene Structure
+
+
+
+\*\*Single-Scene Architecture (v1.3):\*\*
+
+```
+
+Game.unity (Only Scene):
+
+&nbsp; â”œâ”€ NetworkManager (DontDestroyOnLoad)
+
+&nbsp; â”‚    â”œâ”€ NetworkObject
+
+&nbsp; â”‚    â””â”€ Spawner references
+
+&nbsp; â”‚
+
+&nbsp; â”œâ”€ Canvas\_UI
+
+&nbsp; â”‚    â”œâ”€ NetworkUI (Host/Client buttons)
+
+&nbsp; â”‚    â”œâ”€ HUD (HP bars, score, wave counter)
+
+&nbsp; â”‚    â””â”€ LevelCompleteCanvas (pause screen)
+
+&nbsp; â”‚
+
+&nbsp; â”œâ”€ Main Camera
+
+&nbsp; â”‚    â””â”€ CinemachineCamera (follows owner player)
+
+&nbsp; â”‚
+
+&nbsp; â”œâ”€ PlayArea
+
+&nbsp; â”‚    â”œâ”€ Background (black sprite)
+
+&nbsp; â”‚    â””â”€ Boundaries (colliders)
+
+&nbsp; â”‚
+
+&nbsp; â”œâ”€ EnemySpawner
+
+&nbsp; â”‚    â”œâ”€ NetworkObject
+
+&nbsp; â”‚    â””â”€ SpawnPoint configs
+
+&nbsp; â”‚
+
+&nbsp; â””â”€ BulletPool\_Player
+
+&nbsp;      â””â”€ Pooled bullet storage
+
+```
+
+
+
+\*\*Removed (v1.2 â†’ v1.3):\*\*
+
+\- Bootstrap.unity (scene consolidation)
+
+\- BootstrapPersist.cs (no longer needed)
+
+
+
+\*\*Scene Flow:\*\*
+
+```
+
+1\. Game launches â†’ Game.unity loads
+
+2\. NetworkUI visible â†’ Host/Client buttons
+
+3\. Player clicks "Start Host" or "Start Client"
+
+4\. PlayerSpawner spawns player prefabs
+
+5\. NetworkUI hidden (HideOnConnection.cs)
+
+6\. HUD visible
+
+7\. EnemySpawner starts level sequence
+
+8\. Gameplay loop
+
+```
+
+
+
+---
+
+
+
+\## 7. SCORING \& VICTORY CONDITIONS
+
+
+
+\### 7.1 Score System
+
+
+
+\*\*Score Sources:\*\*
+
+```
+
+Enemy Kill: 10 points (both Chaser and Shooter)
+
+Survival Time: 1 point per second
+
+Level Completion: 100 points bonus
+
+Final Victory: 500 points bonus
+
+```
+
+
+
+\*\*Example Full Session:\*\*
+
+```
+
+Level 1: 60 kills (600) + 60s survival (60) + bonus (100) = 760
+
+Level 2: 90 kills (900) + 60s survival (60) + bonus (100) = 1060
+
+Level 3: 120 kills (1200) + 60s survival (60) + bonus (100) = 1360
+
+Level 4: 150 kills (1500) + 60s survival (60) + bonus (100) = 1660
+
+Level 5: 200 kills (2000) + 60s survival (60) + bonus (100) + victory (500) = 2660
+
+
+
+TOTAL EXPECTED: ~7500 points
+
+```
+
+
+
+\*\*Multiplayer Scoring:\*\*
+
+\- Shared score pool (cooperative emphasis)
+
+\- Both players contribute to single total
+
+\- No competition, pure cooperation
+
+\- Combined final score for highscore submission
+
+
+
+\*\*Network Implementation:\*\*
+
+```csharp
+
+// ScoreManager (Singleton, NetworkBehaviour)
+
+private readonly SyncVar<int> totalScore = new SyncVar<int>(0);
+
+
+
+\[Server]
+
+public void AddScore(int amount)
+
+{
+
+&nbsp;   totalScore.Value += amount;
+
+&nbsp;   Debug.Log($"Score: {totalScore.Value}");
+
+}
+
+
+
+// Called from:
+
+// - EnemyHealth.OnDeath() â†’ AddScore(10)
+
+// - LevelManager.Update() â†’ AddScore(1) per second
+
+// - LevelManager.OnLevelComplete() â†’ AddScore(100)
+
+// - LevelManager.OnVictory() â†’ AddScore(500)
+
+```
+
+
+
+\### 7.2 Victory \& Defeat Conditions
+
+
+
+\*\*Victory:\*\*
+
+```
+
+Condition: Complete all 5 levels (survive 5 Ã— 60s = 300 seconds total)
+
+Trigger: levelComplete == 5 \&\& timer expired
+
+Result: Victory screen, final score, highscore submission
+
+```
+
+
+
+\*\*Defeat:\*\*
+
+```
+
+Condition: Both players reach 0 HP
+
+Trigger: Player1.HP == 0 AND Player2.HP == 0
+
+Result: Game Over screen, final score, restart option
+
+```
+
+
+
+\*\*Level Complete Condition:\*\*
+
+```
+
+Condition: Timer reaches 60 seconds OR all enemies defeated
+
+Trigger: Time.time >= levelEndTime OR enemyCount == 0
+
+Result: Pause screen, "Next Level" button (host clicks)
+
+```
+
+
+
+---
+
+
+
+\## 8. DEVELOPMENT ROADMAP
+
+
+
+\### 8.1 Phase Overview
+
+
+
+\*\*COMPLETED PHASES (Days 1-4):\*\*
+
+
+
+\*\*Phase 1: Infrastructure (Day 1)\*\*
+
+```
+
+âœ… Unity 6000.0.62f1 project setup
+
+âœ… FishNet 4.x integration
+
+âœ… Git repository structure (.gitignore, README template)
+
+âœ… Folder organization
+
+âœ… NetworkManager configuration
+
+```
+
+
+
+\*\*Phase 2: Player Foundation (Days 2-3)\*\*
+
+```
+
+âœ… Player prefab (NetworkObject + components)
+
+âœ… PlayerController (WASD movement, mouse rotation)
+
+âœ… PlayerSpawner (auto-spawn on connection)
+
+âœ… CameraFollow (Cinemachine integration)
+
+âœ… SyncVars (PlayerName, CurrentHP, PlayerColor)
+
+âœ… NetworkUIManager (Host/Client buttons)
+
+âœ… Scene consolidation (Bootstrap â†’ Game.unity)
+
+```
+
+
+
+\*\*Phase 3: Shooting System (Days 3-4)\*\*
+
+```
+
+âœ… NeonGlowController (dual-sprite rendering)
+
+âœ… WeaponConfig (ScriptableObject pattern)
+
+âœ… WeaponManager (3-weapon auto-fire)
+
+âœ… BulletPool (lazy initialization, Queue-based)
+
+âœ… Bullet.cs (movement, lifetime, collision detection)
+
+âœ… Priority targeting (nearest, 2nd, 3rd enemy)
+
+âœ… 3 weapon configurations (Blue/Spread/Power Laser)
+
+âœ… Input System migration (New Input System)
+
+```
+
+
+
+\*\*Phase 4: Enemy System (Day 4)\*\*
+
+```
+
+âœ… Enemy Layer 6 + Tag "Enemy"
+
+âœ… EnemyHealth.cs (server-authoritative damage)
+
+âœ… EnemyChaser.cs (follow AI)
+
+âœ… EnemyShooter.cs (ranged AI with distance management)
+
+âœ… EnemySpawner.cs (wave system, 5 waves, spawn points)
+
+âœ… Enemy prefabs (Chaser, Shooter with NetworkObject)
+
+âœ… Collision debugging (hybrid trigger/solid approach)
+
+âœ… Score tracking on kill (every 3rd = collectible marker)
+
+```
+
+
+
+\*\*REMAINING PHASES (Days 5-10):\*\*
+
+
+
+\*\*Phase 5: Critical Fixes \& Health System (Day 5)\*\*
+
+```
+
+PRIORITY TASKS:
+
+â³ TASK 0: Hybrid collider config (15 min)
+
+&nbsp;  - Bullet prefabs: Is Trigger = ON
+
+&nbsp;  - Keep Enemy/Player solid colliders
+
+&nbsp;  
+
+â³ TASK 1: BulletPool infinite expansion fix (45 min) - CRITICAL
+
+&nbsp;  - Null-check loop in GetBullet()
+
+&nbsp;  - DespawnType.Pool usage
+
+&nbsp;  - Auto-expansion on pool empty
+
+
+
+â³ Player health system
+
+&nbsp;  - PlayerHealth.cs (HP SyncVar, TakeDamage ServerRpc)
+
+&nbsp;  - Bullet â†’ Enemy damage (OnTriggerEnter2D)
+
+&nbsp;  - Enemy â†’ Player damage (OnCollisionEnter2D)
+
+&nbsp;  - Death handling (respawn or game over)
+
+
+
+â³ Enemy bullet system
+
+&nbsp;  - EnemyBullet.cs script
+
+&nbsp;  - EnemyShooter firing implementation
+
+&nbsp;  - Separate bullet pool for enemies
+
+&nbsp;  - SerializeField for projectile speed
+
+
+
+TARGET: 65/80 base points secured (Player HP + Hit detection = 20 points)
+
+```
+
+
+
+\*\*Phase 6: HUD Integration \& Scoring (Day 6)\*\*
+
+```
+
+â³ HUD data connection
+
+&nbsp;  - HP bar â†’ SyncVar subscription
+
+&nbsp;  - Score display â†’ SyncVar subscription
+
+&nbsp;  - Level counter â†’ EnemySpawner state
+
+
+
+â³ ScoreManager implementation
+
+&nbsp;  - Singleton pattern
+
+&nbsp;  - Kill tracking (10 points)
+
+&nbsp;  - Time tracking (1 point/second)
+
+&nbsp;  - Level bonus (100 points)
+
+
+
+â³ Game Over / Victory screens
+
+&nbsp;  - Condition detection
+
+&nbsp;  - UI display (ObserversRpc)
+
+&nbsp;  - Restart functionality
+
+
+
+TARGET: 80/80 base points secured
+
+```
+
+
+
+\*\*Phase 7: Level System Refactor (Day 7)\*\*
+
+```
+
+â³ TASK 2: Parallel spawn point system (3-4h)
+
+&nbsp;  - SpawnPointConfig data structure
+
+&nbsp;  - Timer-based parallel spawning
+
+&nbsp;  - Level complete pause screen
+
+&nbsp;  - "Next Level" button (host-only)
+
+
+
+â³ Level progression UI
+
+&nbsp;  - LevelCompleteCanvas design
+
+&nbsp;  - Stats display (score, kills)
+
+&nbsp;  - Server-authoritative advancement
+
+
+
+TARGET: Core gameplay loop refined
+
+```
+
+
+
+\*\*Phase 8: Multi-Shot \& Polish (Day 8)\*\*
+
+```
+
+â³ TASK 3: Multi-shot weapon system (2-3h)
+
+&nbsp;  - FirePattern enum (Straight, Spread, Circle)
+
+&nbsp;  - BulletsPerShot configuration
+
+&nbsp;  - Spread angle calculations
+
+&nbsp;  - WeaponManager refactor
+
+
+
+â³ TASK 4: Enemy projectile tuning (30 min)
+
+&nbsp;  - SerializeField speed parameter
+
+&nbsp;  - EnemyBullet speed passing
+
+
+
+â³ TASK 5: Visual feedback (1-2h)
+
+&nbsp;  - Enemy explosion animation
+
+&nbsp;  - Player damage flash
+
+&nbsp;  - VFX integration
+
+
+
+â³ TASK 6: BulletPool size increase (5 min)
+
+&nbsp;  - initialPoolSize = 200
+
+
+
+TARGET: 95/100 points (15/20 bonus secured)
+
+```
+
+
+
+\*\*Phase 9: Collectibles \& Highscore (Day 9)\*\*
+
+```
+
+â³ Collectible system
+
+&nbsp;  - Weapon pickup spawning (every 3rd kill)
+
+&nbsp;  - Upgrade pickup spawning
+
+&nbsp;  - Pickup collision detection
+
+&nbsp;  - Effect application (unlock slots, stat boosts)
+
+
+
+â³ PHP/SQL backend
+
+&nbsp;  - Database setup (highscores table)
+
+&nbsp;  - submit\_score.php endpoint
+
+&nbsp;  - get\_highscores.php endpoint
+
+&nbsp;  - UnityWebRequest integration
+
+
+
+â³ JSON fallback
+
+&nbsp;  - Local highscore persistence
+
+&nbsp;  - JSON serialization
+
+
+
+TARGET: 100/100 points secured
+
+```
+
+
+
+\*\*Phase 10: Final Polish \& Submission (Day 10)\*\*
+
+```
+
+â³ Bug fixing
+
+&nbsp;  - Collision edge cases
+
+&nbsp;  - Network synchronization issues
+
+&nbsp;  - UI glitches
+
+
+
+â³ README.md completion
+
+&nbsp;  - Complete technical overview
+
+&nbsp;  - RPC documentation
+
+&nbsp;  - SyncVar documentation
+
+&nbsp;  - Bullet/Enemy logic descriptions
+
+&nbsp;  - Known bugs section
+
+
+
+â³ GitHub cleanup
+
+&nbsp;  - Final commit with full history
+
+&nbsp;  - Repository organization
+
+&nbsp;  - Build artifacts removed
+
+
+
+â³ Optional: Video recording
+
+&nbsp;  - OBS gameplay capture
+
+&nbsp;  - 2-player demonstration
+
+
+
+TARGET: Project submitted
+
+```
+
+
+
+\### 8.2 Point Tracking
+
+
+
+\*\*Current Status (Day 5):\*\*
+
+```
+
+Multiplayer Basis: 10/10 âœ…
+
+Player Control: 15/15 âœ…
+
+Shooting System: 20/20 âœ…
+
+Enemy System: 15/15 âœ… (foundation complete)
+
+Health \& Gameflow: 0/10 â³
+
+HUD \& Score: 0/10 â³
+
+
+
+BASE TOTAL: 60/80
+
+BONUS TOTAL: 15/20 (multi-weapon 10, visuals 5)
+
+OVERALL: 75/100
+
+```
+
+
+
+\*\*Minimum Target:\*\* 80/100 (pass requirement)  
+
+\*\*Stretch Target:\*\* 90-100/100 (excellent grade)
+
+
+
+---
+
+
+
+\## 9. KNOWN ISSUES \& FUTURE WORK
+
+
+
+\### 9.1 Known Issues (As of v1.3)
+
+
+
+\*\*CRITICAL (Day 5 Fix Required):\*\*
+
+```
+
+âŒ BulletPool MissingReferenceException
+
+&nbsp;  - Symptom: GetBullet() returns destroyed GameObject
+
+&nbsp;  - Impact: Gameplay interrupts, crashes on rapid fire
+
+&nbsp;  - Status: Documented, fix planned (TASK 1)
+
+```
+
+
+
+\*\*HIGH Priority:\*\*
+
+```
+
+âš ï¸ Enemy overlap during spawn
+
+&nbsp;  - Symptom: Enemies stack on same position
+
+&nbsp;  - Mitigation: Physics collision active
+
+&nbsp;  - Status: Acceptable (resolves after 1-2 frames)
+
+
+
+âš ï¸ Scene loading consolidated but UI shows briefly
+
+&nbsp;  - Symptom: NetworkUI flickers before hiding
+
+&nbsp;  - Impact: Visual polish issue
+
+&nbsp;  - Status: Low priority (functional)
+
+```
+
+
+
+\*\*MEDIUM Priority:\*\*
+
+```
+
+âš ï¸ Shooting system missing hit detection damage
+
+&nbsp;  - Symptom: Bullets collide but no HP reduction
+
+&nbsp;  - Impact: No actual combat damage yet
+
+&nbsp;  - Status: Phase 5 implementation
+
+
+
+âš ï¸ No player death handling
+
+&nbsp;  - Symptom: HP can go negative, no respawn/game over
+
+&nbsp;  - Impact: Cannot lose game yet
+
+&nbsp;  - Status: Phase 5 implementation
+
+```
+
+
+
+\### 9.2 Technical Debt
+
+
+
+\*\*Performance:\*\*
+
+\- Network bandwidth monitoring needed (multi-shot will increase)
+
+\- BulletPool fragmentation after long sessions (cleanup task optional)
+
+
+
+\*\*Architecture:\*\*
+
+\- Level complete button should be server-authoritative only (currently client-callable)
+
+\- Enemy bullet pool needs separation from player pool (shared pool risky)
+
+
+
+\*\*Code Quality:\*\*
+
+\- WeaponManager.cs growing large (consider splitting targeting logic)
+
+\- EnemySpawner.cs will become complex with parallel spawning (refactor planned)
+
+
+
+\### 9.3 Future Enhancements (Beyond Scope)
+
+
+
+\*\*Gameplay:\*\*
+
+\- Boss fights (alternative to waves)
+
+\- Power-ups (shields, bombs, slow-motion)
+
+\- Player classes (tank, fast, shooter)
+
+\- Friendly fire option
+
+
+
+\*\*Technical:\*\*
+
+\- Client prediction (reduced input lag)
+
+\- Custom interpolation (smoother movement)
+
+\- Lag compensation (hit validation)
+
+
+
+\*\*Visual:\*\*
+
+\- Particle systems (explosions, trails)
+
+\- Screen shake on hit
+
+\- Post-processing (bloom, chromatic aberration)
+
+\- Animated sprites (enemy movement cycles)
+
+
+
+\*\*Audio:\*\*
+
+\- SFX integration (shooting, explosions, pickups)
+
+\- Background music (electronic/synth-wave)
+
+\- Audio mixer (volume controls)
+
+
+
+---
+
+
+
+\## 10. CONCLUSION
+
+
+
+\### 10.1 Project Summary
+
+
+
+\*\*Bullet\_Love\*\* combines classic bullet-hell intensity with modern auto-fire convenience, wrapped in a nostalgic 1980s neon aesthetic inspired by Stranger Things. The cooperative shared-screen design encourages teamwork, while the Brotato-inspired multi-weapon system provides satisfying progression without overwhelming complexity.
+
+
+
+\*\*Core Pillars:\*\*
+
+1\. \*\*Survive \& Thrive:\*\* Positioning-focused gameplay over twitch aim
+
+2\. \*\*Cooperative Chaos:\*\* Shared screen, shared victory, shared score
+
+3\. \*\*Retrofuturistic Style:\*\* Stranger Things meets arcade glory
+
+4\. \*\*Accessible Depth:\*\* Auto-fire simplicity, multi-weapon tactics
+
+
+
+\### 10.2 Academic Success Criteria
+
+
+
+\*\*Mandatory Requirements:\*\*
+
+```
+
+âœ… 60/80 base points secured (75% complete)
+
+â³ 20/80 base points in progress (Health + HUD)
+
+âœ… 15/20 bonus points documented
+
+âœ… Clean GitHub repository (regular commits)
+
+âœ… FishNet networking functional
+
+â³ README.md in progress
+
+```
+
+
+
+\*\*Quality Indicators:\*\*
+
+\- Component-First methodology followed
+
+\- Server-authority pattern implemented
+
+\- Object pooling from Day 1
+
+\- ScriptableObject data separation
+
+\- Academic attribution headers on all scripts
+
+\- German academic documentation standards
+
+
+
+\### 10.3 Emotional Target
+
+
+
+\*\*Gameplay Feel:\*\*
+
+> "Two players dodge glowing red bullets in a sea of neon chaos, their three auto-firing lasers painting trails across the darkness as enemy ships explode in bursts of purple light. The timer ticks downâ€”45 seconds remaining. Wave 3 begins. They exchange a glance through the screen's glow. Time to survive."
+
+
+
+\*\*Musical Inspiration:\*\*
+
+SeÃ±or Coconut - "El Baile AlemÃ¡n" (The German Dance)  
+
+> Kraftwerk's electronic precision meets Latin rhythmic joyâ€”mechanical yet emotional, structured yet free-flowing. This duality mirrors the game's design: systematic auto-fire mechanics creating moments of chaotic beauty.
+
+
+
+---
+
+
+
+\## 11. VERSION HISTORY
+
+
+
+\*\*v1.0 (December 17, 2025):\*\*
+
+\- Initial GDD
+
+\- Manual fire design
+
+\- 2 bullet patterns
+
+\- Versus mode concept
+
+
+
+\*\*v1.1 (December 20, 2025):\*\*
+
+\- Pivot to cooperative mode
+
+\- Wave system design
+
+\- Shared-screen layout
+
+
+
+\*\*v1.2 (January 8, 2026):\*\*
+
+\- Multi-weapon auto-fire system (Brotato-inspired)
+
+\- Collectible progression
+
+\- Neon-glow visual specifications
+
+\- 3-color player customization
+
+\- Dual-sprite rendering method
+
+\- Updated enemy designs
+
+\- Scene loading architecture
+
+\- Object pooling specifications
+
+\- Complete technical documentation
+
+\- Current implementation status
+
+
+
+\*\*v1.3 (January 14, 2026):\*\*
+
+\- Parallel spawn point system (Level/Wave refactor)
+
+\- Multi-shot weapon patterns (Spread, Circle)
+
+\- Enemy system implementation complete
+
+\- BulletPool infinite expansion fix documented
+
+\- Hybrid collider architecture
+
+\- Visual feedback specifications
+
+\- 7 critical tasks identified with 0.1% expert analysis
+
+\- Complete GDD documentation (11 sections)
+
+\- Academic requirements mapping
+
+\- Development roadmap with daily milestones
+
+
+
+---
+
+
+
+\## 12. CREDITS \& ATTRIBUTION
+
+
+
+\*\*Developer:\*\* Julian Gomez  
+
+\*\*Course:\*\* PRG - Game \& Multimedia Design  
+
+\*\*Institution:\*\* SRH Hochschule Heidelberg  
+
+\*\*Timeline:\*\* January 14-23, 2026 (10 days)
+
+
+
+\*\*Technology Stack:\*\*
+
+\- Unity 6000.0.62f1 (game engine)
+
+\- FishNet 4.x (networking framework)
+
+\- Unity New Input System (player controls)
+
+\- Cinemachine (camera system)
+
+
+
+\*\*Assets:\*\*
+
+\- Sprites: Kenney Space Shooter Redux (CC0 License)
+
+\- Font: Doto Extra-Bold (custom project font)
+
+\- Inspirational Music: SeÃ±or Coconut - "El Baile AlemÃ¡n"
+
+
+
+\*\*AI Assistance:\*\*
+
+\- Claude (Anthropic) - Technical consultation, architecture planning
+
+\- AI-assisted sections documented in code attribution headers
+
+
+
+\*\*Special Thanks:\*\*
+
+\- Dozent for collision debugging insight (hybrid trigger approach)
+
+\- FishNet community for networking patterns
+
+\- Brotato developers for auto-fire inspiration
+
+\- Stranger Things for visual aesthetic reference
+
+
+
+---
+
+
+
+\*\*END OF GAME DESIGN DOCUMENT v1.3\*\*
+
+
+
+\*Last Updated: January 14, 2026\*  
+
+\*Total Word Count: ~12,500 words\*  
+
+\*Document Status: Complete \& Ready for Development Reference\*
+

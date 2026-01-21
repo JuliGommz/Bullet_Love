@@ -1,0 +1,596 @@
+# Architecture Decisions
+
+**Format**: Architecture Decision Records (ADR)  
+**Status**: Living Document  
+**Letzte Aktualisierung**: Initial
+
+---
+
+## ADR-001: Wave-System statt Boss
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Anforderung erlaubt ENTWEDER Boss ODER Waves (15 Punkte). Beide Optionen sind gleichwertig bewertet.
+
+### Entscheidung
+**Wir implementieren ein Wave-System** (keine Boss-Fights).
+
+### BegrÃ¼ndung
+
+**PRO Waves**:
+- Einfacher zu implementieren (weniger AI-KomplexitÃ¤t)
+- Klare Progression (Wave 1 â†’ 2 â†’ 3)
+- Skalierbar (mehr Gegner = hÃ¶here Schwierigkeit)
+- Weniger Bug-Risiko
+- Gut testbar (Wave-fÃ¼r-Wave)
+
+**CONTRA Boss**:
+- Komplex: Phasen-System, Special Attacks, Patterns
+- Hoher Zeitaufwand (3-5 Tage nur fÃ¼r Boss)
+- Bug-anfÃ¤llig (State-Machine, Transitions)
+- Schwer zu balancen
+- Risiko: Nicht rechtzeitig fertig
+
+### Konsequenzen
+
+**Positiv**:
+- Mehr Zeit fÃ¼r Bullet-Patterns (Bonus-Punkte)
+- Stabiler Code
+- Leichter erweiterbar (Bonus-Waves)
+
+**Negativ**:
+- Weniger "beeindruckend" als Boss
+- Eventuell repetitiv
+
+### Implementation
+- 5 Waves geplant
+- Wave 1: 5x Chaser
+- Wave 2: 8x Chaser + 2x Shooter
+- Wave 3: 10x Chaser + 5x Shooter
+- Wave 4: 15x Mixed
+- Wave 5: 20x Mixed (Final Wave)
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-002: Object-Pooling ab Tag 1
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Bullet-Hell = 100+ Projektile pro Sekunde. Standard Instantiate/Destroy fÃ¼hrt zu:
+- Garbage Collection Spikes
+- FPS-Drops
+- Memory-Fragmentierung
+- Netzwerk-Overhead
+
+### Entscheidung
+**Object-Pooling wird von Anfang an implementiert** (nicht nachtrÃ¤glich).
+
+### BegrÃ¼ndung
+
+**Warum jetzt?**:
+- NachtrÃ¤gliches Refactoring = Risiko (Bugs)
+- Pattern ist simpel (Queue/Stack)
+- Performance-kritisch
+
+**Warum nicht spÃ¤ter?**:
+- Code-Umschreibung = Zeitverlust
+- Risiko fÃ¼r neue Bugs
+- Druck am Ende
+
+### Implementation
+```csharp
+// Pseudo-Code
+class BulletPool : MonoBehaviour
+{
+    Queue<Bullet> pool = new Queue<Bullet>();
+    
+    Bullet GetBullet()
+    {
+        if(pool.Count > 0)
+            return pool.Dequeue();
+        else
+            return CreateNew();
+    }
+    
+    void ReturnBullet(Bullet b)
+    {
+        b.gameObject.SetActive(false);
+        pool.Enqueue(b);
+    }
+}
+```
+
+**Pool-GrÃ¶ÃŸen**:
+- Player Bullets: 50 pro Player = 100 total
+- Enemy Bullets: 100
+- Enemies: 30
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-003: Fixed Timestep fÃ¼r Determinismus
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Netzwerk-Synchronisation + Physik = potentiell non-deterministisch bei variabler Framerate.
+
+### Entscheidung
+**Fixed Timestep = 0.02s (50 Updates/Sekunde)**.
+
+### BegrÃ¼ndung
+
+**Warum 50Hz?**:
+- Standard fÃ¼r Multiplayer (CSGO, Overwatch)
+- Balance zwischen Precision und Performance
+- FishNet Default: 60Hz (wir gehen etwas konservativer)
+
+**Physik-Einstellung**:
+```
+Edit â†’ Project Settings â†’ Time
+Fixed Timestep: 0.02
+Maximum Allowed Timestep: 0.1 (Fallback bei Lag)
+```
+
+### Konsequenzen
+
+**Positiv**:
+- Konsistente Simulation
+- Reproduzierbare Bugs
+- Bessere Netzwerk-Sync
+
+**Negativ**:
+- Auf schwachen PCs: Multiple Physics-Steps/Frame
+- Potentieller Lag-Spike
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-004: Client-Prediction NICHT in v1.0
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Client-Prediction = Player-Bewegung lÃ¤uft lokal, Server korrigiert bei Abweichung. Reduziert Input-Lag, aber erhÃ¶ht KomplexitÃ¤t massiv.
+
+### Entscheidung
+**v1.0 verwendet KEINE Client-Prediction** (Server-Authority only).
+
+### BegrÃ¼ndung
+
+**Warum nicht?**:
+- KomplexitÃ¤t: Reconciliation, Rewinding, State-Buffering
+- FishNet: Prediction ist fortgeschrittenes Feature
+- Zeit-Risiko (3-5 Tage nur fÃ¼r Prediction)
+- Nicht fÃ¼r 80 Pflicht-Punkte erforderlich
+
+**Bonus-Feature?**:
+- Wenn Zeit Ã¼brig: Prediction als Bonus (F: Technische Verbesserungen)
+- Erst wenn ALLE 80 Punkte fertig
+
+### Konsequenzen
+
+**Positiv**:
+- Simpler Code
+- Weniger Bugs
+- Mehr Zeit fÃ¼r Features
+
+**Negativ**:
+- Input-Lag spÃ¼rbar bei > 50ms Ping
+- Weniger "professional feel"
+
+**Mitigation**:
+- NetworkTransform mit Interpolation
+- Gutes Hosting (niedriger Ping)
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-005: FishNet Transport = Tugboat (Default)
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+FishNet unterstÃ¼tzt mehrere Transports:
+- Tugboat (Default, UDP)
+- FishySteamworks (Steam P2P)
+- WebGL Transport
+- etc.
+
+### Entscheidung
+**Wir verwenden Tugboat** (FishNet Default).
+
+### BegrÃ¼ndung
+
+**Warum Tugboat?**:
+- Standard, gut dokumentiert
+- Keine externe Dependency (Steam SDK)
+- Lokal testbar (localhost)
+- Simpel fÃ¼r Abgabe
+
+**Warum NICHT FishySteamworks?**:
+- BenÃ¶tigt Steam-Account fÃ¼r beide Spieler
+- Kompliziertes Setup
+- Overkill fÃ¼r Uni-Projekt
+
+### Konsequenzen
+
+**Positiv**:
+- Schnelles Setup
+- Einfaches Testing (zwei Editor-Instanzen)
+
+**Negativ**:
+- Kein NAT-Punching (Port-Forwarding nÃ¶tig fÃ¼r echtes Online)
+- FÃ¼r Abgabe irrelevant (Demo wird lokal laufen)
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-006: JSON-Fallback fÃ¼r Persistenz
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Anforderung: Highscore via PHP/SQL. Risiko: Backend nicht rechtzeitig fertig (siehe Risk Matrix R3).
+
+### Entscheidung
+**Backup-Plan: JSON-File-Persistenz** wird parallel vorbereitet.
+
+### BegrÃ¼ndung
+
+**Warum Fallback?**:
+- PHP/SQL = externe Dependency (Server, Hosting)
+- Kann in letzter Minute scheitern
+- JSON = Zero-Dependency
+
+**Implementation-Strategie**:
+1. Interface `IHighscoreBackend`
+2. Zwei Implementations:
+   - `PHPSQLBackend` (Primary)
+   - `JSONBackend` (Fallback)
+3. Easy-Switch via Inspector
+
+### Konsequenzen
+
+**Positiv**:
+- Risiko-Mitigation
+- Projekt-Abschluss gesichert
+
+**Negativ**:
+- Extra-Arbeit (ca. 2 Stunden)
+- JSON = nicht "serverseitig" (weniger Punkte?)
+
+**Kompromiss**:
+- Dozent transparent informieren (README)
+- "PHP/SQL geplant, JSON als Fallback implementiert"
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-007: Unity New Input System verwenden
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial (Updated: 17.12.2025)  
+**Entscheider**: Team
+
+### Kontext
+Unity bietet zwei Input-Systeme:
+1. Legacy Input (Input.GetKey) - wird deprecated
+2. New Input System (Input Actions, Events) - Unity's Zukunft
+
+### Entscheidung
+**Wir verwenden das New Input System**.
+
+### BegrÃ¼ndung
+
+**Warum New Input System?**:
+- Modern, zukunftssicher (Legacy wird nicht weiterentwickelt)
+- Gamepad-Support out-of-the-box
+- Besser fÃ¼r Multiplayer (Action-basiert, nicht polling)
+- Rebinding-fÃ¤hig (Bonus-Feature mÃ¶glich)
+- Trennung Input-Definition vs. Code
+
+**Warum NICHT Legacy?**:
+- Deprecated in Unity 6
+- Schlechtere Cross-Platform-UnterstÃ¼tzung
+- Kein Event-System (mehr Boilerplate)
+
+### Implementation-Details
+
+**Package Installation**:
+```
+Window â†’ Package Manager â†’ Unity Registry â†’ Input System â†’ Install
+Prompt "Enable Backend" â†’ Yes â†’ Editor Restart
+```
+
+**Input Actions Asset**:
+```
+Assets/_Project/Data/InputActions.inputactions
+Actions:
+- Movement (Vector2, WASD)
+- Fire (Button, Space/Mouse0)
+- Special (Button, Shift)
+```
+
+**PlayerController Integration**:
+```csharp
+using UnityEngine.InputSystem;
+
+public class PlayerController : NetworkBehaviour
+{
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private InputAction fireAction;
+    
+    void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+        moveAction = playerInput.actions["Movement"];
+        fireAction = playerInput.actions["Fire"];
+    }
+    
+    void Update()
+    {
+        if (!IsOwner) return;
+        
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        // Movement logic...
+        
+        if (fireAction.WasPressedThisFrame())
+        {
+            ShootServerRpc();
+        }
+    }
+}
+```
+
+### Konsequenzen
+
+**Positiv**:
+- Zukunftssicher
+- Gamepad-Bonus einfacher
+- Professioneller Code
+- Editor-Test mit simuliertem Input
+
+**Negativ**:
+- Initial Setup-Zeit (+30 min)
+- Event-basiert = andere Denkweise
+- Etwas mehr Boilerplate
+
+**Setup-Zeit**:
+- Input Actions Asset: 15 min
+- PlayerController Conversion: 15 min
+- Testing: 10 min
+- **Total**: ~40 min (einmalig)
+
+### Migration-Hinweis
+Falls Legacy-Code aus Tutorials:
+```csharp
+// ALT (Legacy):
+if (Input.GetKey(KeyCode.W))
+    Move();
+
+// NEU (New Input System):
+if (moveAction.ReadValue<Vector2>().y > 0)
+    Move();
+```
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-008: Prefab-Struktur fÃ¼r Netzwerk-Objekte
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+NetworkObjects mÃ¼ssen als Prefabs existieren (FishNet Requirement).
+
+### Entscheidung
+**Strikte Prefab-Only Regel** fÃ¼r alle Netzwerk-relevanten Objekte.
+
+### Struktur
+```
+Assets/_Project/Prefabs/
+â”œâ”€â”€ Player/
+â”‚   â””â”€â”€ PlayerPrefab.prefab (NetworkObject)
+â”œâ”€â”€ Enemies/
+â”‚   â”œâ”€â”€ EnemyChaser.prefab
+â”‚   â””â”€â”€ EnemyShooter.prefab
+â”œâ”€â”€ Projectiles/
+â”‚   â”œâ”€â”€ PlayerBullet.prefab
+â”‚   â””â”€â”€ EnemyBullet.prefab
+â””â”€â”€ PowerUps/ (Bonus)
+    â”œâ”€â”€ ShieldPowerUp.prefab
+    â””â”€â”€ FireRatePowerUp.prefab
+```
+
+### Regeln
+1. **NIE** NetworkObjects direkt in Scene platzieren
+2. Spawning IMMER Ã¼ber NetworkManager.Spawn(prefab)
+3. Prefab-Changes â†’ Apply All
+4. Overrides vermeiden (fÃ¼hrt zu Sync-Issues)
+
+### Konsequenzen
+
+**Positiv**:
+- Klare Struktur
+- Git-Merge-sicher
+- FishNet-konform
+
+**Negativ**:
+- Weniger flexibel wÃ¤hrend Prototyping
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-009: Server-Authority fÃ¼r alle Gameplay-Logik
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Wo lÃ¤uft die Logik? Client? Server? Hybrid?
+
+### Entscheidung
+**Alle Gameplay-kritischen Entscheidungen auf Server**.
+
+### Scope
+
+**Server-Authority**:
+- Damage Calculation
+- HP Changes
+- Enemy Spawning
+- Score Updates
+- Game State Transitions
+- Hit Detection (Bullets â†’ Entities)
+
+**Client-Authority**:
+- Input Sampling (Movement, Fire-Button)
+- Visual-Only Effects (Muzzle Flash, Hit Particles)
+- UI Updates (lesen SyncVars)
+
+### Implementation-Pattern
+```csharp
+// CLIENT sendet Intent
+[ServerRpc]
+void ShootServerRpc(Vector2 direction)
+{
+    // SERVER entscheidet + spawnt
+    var bullet = Spawn(bulletPrefab);
+    bullet.Init(direction, damage, owner);
+    // Alle Clients sehen Bullet automatisch
+}
+```
+
+### Konsequenzen
+
+**Positiv**:
+- Cheat-resistent
+- Single Source of Truth
+- Keine Desync-Issues
+
+**Negativ**:
+- Input-Lag (Round-Trip)
+- Mehr Netzwerk-Traffic
+
+**Mitigation**:
+- Niedriger Ping erforderlich (Lokal-Test ideal)
+- FÃ¼r Uni-Abgabe: Beide Instanzen auf gleichem PC
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## ADR-010: Academic Code-Style
+
+**Status**: âœ… ENTSCHIEDEN  
+**Datum**: Initial  
+**Entscheider**: Team
+
+### Kontext
+Dozent bewertet Code-QualitÃ¤t. Balance zwischen Enterprise-Patterns und Student-Projekt.
+
+### Entscheidung
+**Academic-Level Code** (nicht Enterprise, nicht Spaghetti).
+
+### Guidelines
+
+**DO**:
+- Klare Variablennamen (`playerHealth` statt `pH`)
+- Kommentare bei komplexer Logik
+- Regions fÃ¼r Ãœbersicht
+- Header-Kommentare (Autor, Datum, Zweck)
+- Single Responsibility (eine Aufgabe pro Script)
+
+**DON'T**:
+- Design Patterns ohne Not (kein Factory-Pattern fÃ¼r 2 Enemies)
+- Ãœber-Abstraktion (kein IShootable<T> wo Bullet reicht)
+- Premature Optimization
+- Keine Unity-internen Codestyle-Violations (UpperCase Public, lowerCase Private)
+
+### Beispiel Header
+```csharp
+/*
+ * Filename: PlayerController.cs
+ * Author: Julian
+ * Date: [Datum]
+ * Description: Handles player movement and input for the local player.
+ *              Uses FishNet NetworkBehaviour for multiplayer synchronization.
+ */
+```
+
+### Konsequenzen
+
+**Positiv**:
+- Lesbarer Code
+- Gute Note
+- Wartbar
+
+**Negativ**:
+- Etwas mehr Schreibarbeit
+
+**Status nach Implementation**: [Offen]
+
+---
+
+## Entscheidungs-Log
+
+| ADR | Thema | Status | Implementiert | Notizen |
+|-----|-------|--------|--------------|---------|
+| 001 | Waves statt Boss | âœ… | - | - |
+| 002 | Object-Pooling | âœ… | - | - |
+| 003 | Fixed Timestep | âœ… | - | - |
+| 004 | Keine Client-Prediction | âœ… | - | Bonus wenn Zeit |
+| 005 | Tugboat Transport | âœ… | - | - |
+| 006 | JSON-Fallback | âœ… | - | Parallel zu PHP/SQL |
+| 007 | New Input System | âœ… | - | Updated 17.12.2025 |
+| 008 | Prefab-Struktur | âœ… | - | - |
+| 009 | Server-Authority | âœ… | - | - |
+| 010 | Academic Code-Style | âœ… | - | - |
+
+---
+
+## Ã„nderungs-Prozedur
+
+**Neue Entscheidung hinzufÃ¼gen**:
+1. ADR-Nummer vergeben (fortlaufend)
+2. Template ausfÃ¼llen
+3. Kontext/BegrÃ¼ndung dokumentieren
+4. Konsequenzen klar benennen
+5. In Log-Tabelle eintragen
+
+**Entscheidung Ã¤ndern**:
+1. Alten ADR auf Status "âš ï¸ ÃœBERARBEITET" setzen
+2. Neuen ADR mit "Supersedes ADR-XXX" erstellen
+3. BegrÃ¼ndung fÃ¼r Change dokumentieren
+
+**Entscheidung verwerfen**:
+1. Status auf "âŒ VERWORFEN" setzen
+2. Grund dokumentieren
+3. In Tabelle markieren

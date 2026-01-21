@@ -1,0 +1,571 @@
+# Working Methodology Standards
+
+**Version**: 1.0  
+**Purpose**: Systematic process framework for all development activities  
+**Application**: Throughout entire development lifecycle  
+**Dependencies**: References QUALITY_VERIFICATION_STANDARDS.md for gates
+
+---
+
+## 🔄 CORE WORKING PRINCIPLES
+
+### One-Step-at-a-Time Methodology
+
+**Definition**: Complete one task fully before starting the next
+
+**Rationale**:
+- ADHD-optimized workflow
+- Reduces cognitive load
+- Prevents scope creep
+- Ensures quality completion
+
+**Application**:
+```
+Sequential Process:
+1. Identify single task
+2. Complete task fully
+3. Validate completion
+4. Document outcome
+5. Move to next task
+
+NOT Parallel:
+❌ Starting multiple tasks simultaneously
+❌ Switching between incomplete tasks
+❌ "Quick fixes" while working on main task
+```
+
+**Example**:
+```
+✓ CORRECT:
+  Task 1: Implement player movement → COMPLETE → Test → Document
+  Task 2: Add jump mechanic → COMPLETE → Test → Document
+  Task 3: Integrate camera follow → COMPLETE → Test → Document
+
+✗ WRONG:
+  Start movement → Start jump → Start camera → Debug all together
+```
+
+---
+
+### One Change Type Per Iteration
+
+**Critical Rule**: Separate different types of changes completely
+
+**Change Type Categories**:
+```
+Input System Changes
+  → New Input System integration
+  → Control remapping
+  → Input validation
+
+Performance Optimization
+  → Object pooling
+  → LOD implementation
+  → Garbage collection reduction
+
+Architecture Refactoring
+  → Pattern implementation
+  → Service extraction
+  → Component reorganization
+
+Feature Implementation
+  → New gameplay mechanics
+  → UI additions
+  → Content integration
+
+Bug Fixes
+  → Error corrections
+  → Edge case handling
+  → Workaround removal
+```
+
+**Why This Matters**:
+```
+✓ Easier debugging (know what caused issue)
+✓ Safer rollback (single change to revert)
+✓ Clearer testing (validate one thing)
+✓ Better documentation (focused commits)
+```
+
+**Example**:
+```
+✓ CORRECT (separate iterations):
+  Iteration 1: Migrate to New Input System
+  Iteration 2: Optimize Update() loops
+  Iteration 3: Refactor to Service Pattern
+
+✗ WRONG (combined):
+  One iteration: Input migration + optimization + refactoring
+  → Which change broke it? Unknown.
+```
+
+---
+
+### Incremental Boundary Enforcement
+
+**Definition**: Maintain strict separation between concerns
+
+**Boundaries**:
+```
+System Boundaries:
+  Input ≠ Rendering ≠ Physics ≠ Audio ≠ UI
+
+Layer Boundaries:
+  Data ≠ Logic ≠ Presentation
+
+Phase Boundaries:
+  Design ≠ Implementation ≠ Testing ≠ Documentation
+```
+
+**Enforcement**:
+```
+When working on Input:
+  → Only touch input-related code
+  → Don't "fix" unrelated rendering issues
+  → Don't add features while debugging
+
+When refactoring architecture:
+  → Don't add new features
+  → Don't optimize performance
+  → Focus solely on structure
+```
+
+---
+
+## 🛠️ PROBLEM RESOLUTION PROTOCOL
+
+### Four-Phase Systematic Approach
+
+**Phase 1: Problem Isolation + Full Analysis**
+```
+Objective: Complete system understanding before ANY changes
+
+Steps:
+1. Reproduce issue consistently
+2. Identify exact failure point
+3. Trace dependencies
+4. Document system state
+5. Analyze recent changes
+6. Review relevant documentation
+
+Questions to Answer:
+  - What exactly is failing?
+  - When did it start failing?
+  - What changed before failure?
+  - What does working look like?
+  - What are dependencies?
+
+Output: Written problem description with context
+```
+
+**Phase 2: Baseline Recovery**
+```
+Objective: Return to last known working state
+
+Steps:
+1. Locate last working version
+2. Verify it actually works
+3. Document functional baseline
+4. Preserve current state (branch/backup)
+5. Restore baseline as working foundation
+
+Critical: 
+  → Working system takes precedence over broken "improvements"
+  → Security > Sophistication
+  → Stability > New features
+```
+
+**Phase 3: Targeted Fix**
+```
+Objective: Minimal invasive change to resolve issue
+
+Steps:
+1. Identify SMALLEST possible fix
+2. Change ONE thing
+3. Test immediately
+4. Verify no side effects
+5. Document what was changed and why
+
+Constraints:
+  → Preserve all working functionality
+  → No "while I'm here" additional changes
+  → No refactoring during bug fixing
+```
+
+**Phase 4: Complete Validation**
+```
+Objective: Ensure fix doesn't break anything else
+
+Steps:
+1. Test fixed functionality
+2. Test related systems
+3. Check for regressions
+4. Verify performance unchanged
+5. Console error check
+6. Integration test full workflow
+
+Quality Gates:
+  [ ] Original issue resolved
+  [ ] No new issues introduced
+  [ ] All existing features still work
+  [ ] Performance maintained
+  [ ] Documentation updated
+```
+
+---
+
+### Original Baseline Recovery Pattern
+
+**When to Use**: Regression detected during iteration
+
+**Protocol**:
+```
+1. STOP all forward progress immediately
+2. Document current broken state
+3. Identify last known-good state
+4. Restore baseline version
+5. Verify baseline works
+6. Work from stable foundation
+
+Never: "Try to fix forward" when broken
+Always: "Return to working, then proceed carefully"
+```
+
+**Example**:
+```
+Scenario: Input refactoring broke player movement
+
+✓ CORRECT:
+  1. Stop refactoring
+  2. Git revert to working version
+  3. Verify movement works
+  4. Identify what broke it
+  5. Make smaller, safer change
+
+✗ WRONG:
+  1. Keep trying different fixes
+  2. Add more changes to "fix" it
+  3. Debug without stable baseline
+```
+
+---
+
+## 📋 QUALITY GATE SYSTEM
+
+### Phase-Adaptive Quality Gates
+
+**Concept Phase Gates**:
+```
+[ ] Design consistency validated
+[ ] Academic documentation started
+[ ] Feasibility confirmed
+[ ] Requirements clear
+[ ] Scope defined
+[ ] Resources identified
+```
+
+**Development Phase Gates**:
+```
+[ ] Code compiles without errors
+[ ] Functional testing passed
+[ ] Attribution headers present
+[ ] Component-First methodology followed
+[ ] No Unicode symbols in code
+[ ] Console clear of errors
+[ ] Unit tests pass (if applicable)
+```
+
+**Integration Phase Gates**:
+```
+[ ] Unity project stable / Website loads
+[ ] Component dependencies satisfied
+[ ] Error-free console
+[ ] Cross-system integration tested
+[ ] Performance acceptable
+[ ] No regressions detected
+```
+
+**Content Phase Gates**:
+```
+[ ] Asset quality meets standards
+[ ] Import successful
+[ ] Performance validation passed
+[ ] Attribution documented
+[ ] Licensing verified
+```
+
+**Submission Phase Gates**:
+```
+[ ] Complete documentation present
+[ ] Academic compliance verified
+[ ] Final testing passed
+[ ] README accurate
+[ ] Known issues documented
+[ ] Third-party credits complete
+[ ] Submission checklist complete
+```
+
+---
+
+### Error Prevention Automation
+
+**Pre-Development Checks**:
+```
+Before writing ANY code:
+  [ ] Requirements validated
+  [ ] Scope verified
+  [ ] Resources confirmed
+  [ ] Dependencies identified
+  [ ] Components exist (Component-First)
+  [ ] Architecture designed
+```
+
+**During Development Checks**:
+```
+After each significant change:
+  [ ] Code compiles
+  [ ] Tests pass (if applicable)
+  [ ] Console clean
+  [ ] Functionality preserved
+  [ ] Performance acceptable
+```
+
+**Integration Checks**:
+```
+Before merging/committing:
+  [ ] Components validated
+  [ ] References assigned
+  [ ] Unity-specific checks passed (if applicable)
+  [ ] Full integration test
+  [ ] Regression test passed
+```
+
+---
+
+## 🎯 PRIORITY HIERARCHY
+
+**When Conflicts Arise, Follow This Order**:
+
+```
+1. FUNCTIONALITY
+   → Working system takes absolute precedence
+   → No breaking changes without explicit approval
+   → Preserve baseline above all else
+
+2. USER TRUST
+   → Reliable behavior over new features
+   → Predictable results over clever solutions
+   → Transparency over hidden complexity
+
+3. PERFORMANCE
+   → Optimize after functionality proven
+   → Measure before optimizing
+   → Profile-driven optimization only
+
+4. ELEGANCE
+   → Clean code after stability achieved
+   → Refactor from working state
+   → Improve without breaking
+
+5. INNOVATION
+   → New patterns only after validation
+   → Experimental features isolated
+   → Fall back if unstable
+```
+
+**Example Decision**:
+```
+Situation: Elegant solution available but unproven vs. simple working solution
+
+Decision: Choose simple working solution
+Rationale: Functionality (Priority 1) > Elegance (Priority 4)
+```
+
+---
+
+## 🔧 TROUBLESHOOTING PROTOCOL
+
+### Context-Before-Code Principle
+
+**When User Reports Issues**:
+```
+NEVER: Immediately suggest code changes
+
+ALWAYS:
+1. Request complete context
+2. Ask to see current setup
+3. Validate understanding
+4. THEN propose solution
+
+Questions to Ask:
+  - "Show me your current configuration"
+  - "What components exist in the scene/DOM?"
+  - "What was the last thing that worked?"
+  - "What changed since then?"
+  - "Can you share the error message?"
+```
+
+---
+
+### Minimal Invasive Approach
+
+**When Uncertainty Exists**:
+```
+Principle: Smallest possible change
+
+Process:
+1. Identify minimal change needed
+2. Make ONLY that change
+3. Test immediately
+4. Verify no side effects
+5. Proceed if successful
+6. Rollback if issues
+
+Never: "Might as well also fix/improve X while here"
+Always: "Change one thing, test, validate, proceed"
+```
+
+**Example**:
+```
+Issue: Button not responding
+
+✓ MINIMAL:
+  1. Check button event listener exists
+  2. If missing, add listener
+  3. Test
+  4. Done
+
+✗ INVASIVE:
+  1. Rewrite entire button system
+  2. Add new event handling framework
+  3. Refactor related components
+  4. Debug complex new code
+```
+
+---
+
+### User Anxiety Response
+
+**Recognizing User Anxiety Signals**:
+```
+Phrases like:
+  - "I'm afraid to change..."
+  - "It's working, I don't want to break it"
+  - "Everything is carefully commented"
+  - "I'm nervous about modifying..."
+```
+
+**Response Protocol**:
+```
+1. Acknowledge concern (validate feeling)
+2. Propose minimal invasive approach
+3. Explain safety measures
+4. Offer backup strategy
+5. Proceed cautiously
+6. Test thoroughly
+
+Never: Dismiss concern or push aggressive changes
+Always: Security > Sophistication
+```
+
+---
+
+## 📊 WORKFLOW OPTIMIZATION
+
+### Session Continuity Protocol
+
+**New Session/Topic Change**:
+```
+1. Query Last Known State
+   → "What was the last thing we completed?"
+   → "Where did we leave off?"
+   → "What's the current status?"
+
+2. Provide Mini-Recap
+   → Summarize current understanding
+   → List recent changes
+   → Identify next steps
+
+3. Confirm Accuracy
+   → User validates recap
+   → Corrections made if needed
+   → Agreement on continuation point
+
+4. Establish Clear Continuation Point
+   → Define immediate next task
+   → Confirm approach
+   → Begin work
+```
+
+---
+
+### Progress Documentation
+
+**After Each Significant Milestone**:
+```
+Document:
+  ✓ What was accomplished
+  ✓ What changed
+  ✓ What works now
+  ✓ What doesn't work yet
+  ✓ Next concrete steps
+  ✓ Known issues/concerns
+```
+
+**Update Project Files**:
+```
+  → CURRENT_PHASE_STATUS.md
+  → KNOWN_ISSUES_DECISIONS_LOG.md
+  → Architecture docs (if structure changed)
+```
+
+---
+
+## ✅ METHODOLOGY CHECKLIST
+
+**Before Starting Work**:
+```
+[ ] Task clearly defined
+[ ] Scope limited (one-step-at-a-time)
+[ ] Change type identified (only one type)
+[ ] Prerequisites met
+[ ] Baseline documented
+[ ] Quality gates defined
+```
+
+**During Work**:
+```
+[ ] Single focus maintained
+[ ] Incremental progress
+[ ] Testing after each change
+[ ] Documentation updated
+[ ] Console monitored
+```
+
+**After Completing Task**:
+```
+[ ] Full validation passed
+[ ] Quality gates met
+[ ] Documentation complete
+[ ] Next steps clear
+[ ] Baseline preserved
+```
+
+---
+
+## 🔗 INTEGRATION WITH OTHER STANDARDS
+
+**Uses**:
+- QUALITY_VERIFICATION_STANDARDS.md for quality gates
+- CODE_DEVELOPMENT_STANDARDS.md for implementation rules
+
+**Referenced By**:
+- COMMUNICATION_SESSION_STANDARDS.md for interaction patterns
+
+---
+
+**Status**: Active  
+**Review Frequency**: Quarterly  
+**Owner**: Process governance (all projects)
+
+---

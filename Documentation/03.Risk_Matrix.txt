@@ -1,0 +1,379 @@
+# Risiko-Matrix & Mitigation-Strategien
+
+**Letzte Aktualisierung**: Initial  
+**Status**: Pre-Implementation
+
+---
+
+## Risiko-Klassifizierung
+
+**Schweregrad-Definition**:
+- ðŸ”´ **KRITISCH**: GefÃ¤hrdet Projekt-Abschluss (â‰¥ 40 Punkte Verlust)
+- ðŸŸ  **HOCH**: GroÃŸe Zeit-/Punkte-EinbuÃŸen (20-39 Punkte)
+- ðŸŸ¡ **MITTEL**: VerzÃ¶gerungen, aber manageable (10-19 Punkte)
+- ðŸŸ¢ **NIEDRIG**: Minimaler Impact (< 10 Punkte)
+
+**Wahrscheinlichkeit**:
+- **SEHR HOCH**: > 70%
+- **HOCH**: 50-70%
+- **MITTEL**: 30-50%
+- **NIEDRIG**: < 30%
+
+---
+
+## ðŸ”´ KRITISCHE RISIKEN
+
+### RISIKO 1: FishNet Server-Authority MissverstÃ¤ndnis
+**Schweregrad**: ðŸ”´ KRITISCH  
+**Wahrscheinlichkeit**: HOCH (60%)  
+**Betroffene Punkte**: 10 (Multiplayer) + 15 (Player) + 20 (Shooting) + 15 (Enemies) = **60 Punkte**
+
+**Problem**:
+- Ownership-Konzept falsch verstanden
+- Client versucht, Server-Objekte zu steuern
+- Server Ã¼berschreibt Client-Inputs konstant
+
+**Symptome**:
+- "Rubber-banding" (Player springt zurÃ¼ck)
+- Inputs werden ignoriert
+- Bewegung ruckelt extrem
+- Projektile spawnen nicht
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. FishNet-Dokumentation grÃ¼ndlich lesen (Ownership, Authority)
+2. Minimales Test-Szenario VOR Player-Implementation
+3. Template-Projekt analysieren (FishNet Examples)
+4. [IsOwner]-Checks in JEDEM Input-Handler
+
+REAKTIV:
+1. ZurÃ¼ck zu funktionierendem Template
+2. Debug.Log bei jedem Network-Event
+3. NetworkBehaviour-Flow nachvollziehen
+4. Community/Discord um Hilfe fragen
+```
+
+**Checkpoint**: Nach PHASE 2 (Player Foundation)  
+**Test**: Beide Instanzen, jeder steuert NUR seinen Player
+
+---
+
+### RISIKO 2: Bullet-Synchronisation-HÃ¶lle
+**Schweregrad**: ðŸ”´ KRITISCH  
+**Wahrscheinlichkeit**: SEHR HOCH (75%)  
+**Betroffene Punkte**: 20 (Shooting) + 10 (HUD) = **30 Punkte**
+
+**Problem**:
+- 100+ Bullets pro Sekunde Ã¼berfordern Netzwerk
+- Hit-Detection funktioniert nicht auf allen Clients
+- Ghost-Bullets (nur lokal sichtbar)
+- Lag fÃ¼hrt zu Desync
+
+**Symptome**:
+- Bullets spawnen nur auf einer Instanz
+- Hits werden nicht registriert
+- Framerate bricht ein
+- NetworkManager Overload
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. Object-Pooling von Anfang an (NICHT Instantiate/Destroy)
+2. Bullets als Simple NetworkObjects (minimal SyncVars)
+3. Hit-Detection AUSSCHLIESSLICH Server-Side
+4. Fire-Rate limitieren (max 5/Sekunde pro Player)
+5. Bullet-Lifetime: max 5 Sekunden
+
+REAKTIV:
+1. Profiler analysieren (Network Stats)
+2. Pooling nachtrÃ¤glich einbauen
+3. Bullet-Count reduzieren
+4. Vereinfachte Physik (Raycast statt Rigidbody)
+```
+
+**Checkpoint**: Nach PHASE 3 (Shooting Core)  
+**Test**: 30+ Bullets gleichzeitig, beide Clients spielbar
+
+---
+
+### RISIKO 3: PHP/SQL Backend nicht rechtzeitig fertig
+**Schweregrad**: ðŸ”´ KRITISCH  
+**Wahrscheinlichkeit**: MITTEL (40%)  
+**Betroffene Punkte**: 10 (HUD & Score) = **10 Punkte direkt**, + Eindruck
+
+**Problem**:
+- Server-Setup komplex (XAMPP, Hosting, etc.)
+- PHP-Kenntnisse begrenzt
+- CORS/SSL-Probleme
+- Datenbankfehler
+
+**Symptome**:
+- UnityWebRequest schlÃ¤gt fehl
+- 404/500 Errors
+- Scores werden nicht gespeichert
+- Highscore-Liste leer
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. Backend PARALLEL zu PHASE 5 entwickeln (nicht am Ende!)
+2. Lokaler XAMPP-Test BEVOR Server-Deploy
+3. Fallback: JSON-File Persistenz (PlayerPrefs als absolute NotlÃ¶sung)
+4. Backend-Code frÃ¼hzeitig testen (Postman/Browser)
+
+REAKTIV:
+1. Auf JSON-Speicherung umsteigen (verliert Punkte, aber besser als nichts)
+2. PlayerPrefs als absolute NotlÃ¶sung (lokales Highscore)
+3. README: "Backend geplant, aber Zeit-Limitierung"
+```
+
+**Checkpoint**: SpÃ¤testens 1 Woche vor Abgabe  
+**Test**: Score-Submit + Abruf erfolgreich
+
+---
+
+## ðŸŸ  HOHE RISIKEN
+
+### RISIKO 4: Enemy-AI zu simpel oder zu komplex
+**Schweregrad**: ðŸŸ  HOCH  
+**Wahrscheinlichkeit**: MITTEL (50%)  
+**Betroffene Punkte**: 15 (Enemy System)
+
+**Problem**:
+- Zu simpel: Gegner langweilig, kaum Challenge
+- Zu komplex: Bugs, Performance-Probleme, Zeit-Overrun
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. Start mit EINFACHSTER AI (Vector2.MoveTowards)
+2. Keine Pathfinding-Libraries (zu komplex)
+3. Chaser + Shooter = genug Variation
+4. Boss VERMEIDEN (Wave-System sicherer)
+
+REAKTIV:
+1. AI-KomplexitÃ¤t reduzieren
+2. Gegner-Stats anpassen (HP, Speed)
+3. Mehr Gegner-Anzahl statt smarter AI
+```
+
+---
+
+### RISIKO 5: Wave-System vs. Boss-Entscheidung zu spÃ¤t
+**Schweregrad**: ðŸŸ  HOCH  
+**Wahrscheinlichkeit**: NIEDRIG (20%)  
+**Betroffene Punkte**: 15 (Enemy System)
+
+**Problem**:
+- Unentschieden zwischen Boss/Waves
+- Implementation-Start verzÃ¶gert
+- Zeit fÃ¼r Iteration fehlt
+
+**Mitigation**:
+```
+ENTSCHEIDUNG JETZT:
+â†’ WAVES (Empfehlung)
+
+BegrÃ¼ndung:
++ Einfacher zu implementieren
++ Klare Progression
++ Weniger AI-KomplexitÃ¤t
++ Besser skalierbar
+- Boss wÃ¤re "cooler", aber riskanter
+```
+
+---
+
+### RISIKO 6: Git-Merge-Konflikte (bei 2er-Team)
+**Schweregrad**: ðŸŸ  HOCH  
+**Wahrscheinlichkeit**: HOCH (60%, wenn 2er-Team)  
+**Betroffene Punkte**: Indirekt (Zeit-Verlust)
+
+**Problem**:
+- Beide arbeiten an gleicher Szene
+- Unity-Metafiles konfligieren
+- Scene-Merge unmÃ¶glich
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. Klare Aufgabentrennung (Person A: Player, Person B: Enemies)
+2. Verschiedene Szenen wÃ¤hrend Development
+3. Prefabs statt Scene-Objects
+4. TÃ¤gliche Sync-Meetings
+5. Branch-Strategie: feature/player, feature/enemies
+
+REAKTIV:
+1. Scene-File manuell mergen (Text-Editor)
+2. Notfalls: Eine Version Ã¼bernehmen + andere neu bauen
+```
+
+---
+
+## ðŸŸ¡ MITTLERE RISIKEN
+
+### RISIKO 7: Unity 6000.0.62f1 Bugs/KompatibilitÃ¤t
+**Schweregrad**: ðŸŸ¡ MITTEL  
+**Wahrscheinlichkeit**: NIEDRIG (20%)  
+**Betroffene Punkte**: Variabel
+
+**Problem**:
+- Unity-Version relativ neu
+- FishNet mÃ¶glicherweise nicht vollstÃ¤ndig kompatibel
+- Editor-Crashes
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. FishNet-Discord nach Unity 6 KompatibilitÃ¤t fragen
+2. Backup auf Unity LTS (2022.3) vorbereiten
+3. RegelmÃ¤ÃŸige Projekt-Backups
+
+REAKTIV:
+1. Downgrade auf Unity 2022.3 LTS
+2. FishNet-Version anpassen
+```
+
+---
+
+### RISIKO 8: Performance-Probleme bei vielen Objekten
+**Schweregrad**: ðŸŸ¡ MITTEL  
+**Wahrscheinlichkeit**: MITTEL (40%)  
+**Betroffene Punkte**: Indirekt (Spielbarkeit)
+
+**Problem**:
+- 50+ Enemies + 100+ Bullets = FPS-Drop
+- Netzwerk-Lag verschlimmert es
+- Spiel unspielbar
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. Object-Pooling (Bullets, Enemies, VFX)
+2. Profiler regelmÃ¤ÃŸig checken
+3. Network Stats monitoren
+4. LOD/Culling (off-screen Objects deaktivieren)
+
+REAKTIV:
+1. Gegner-Anzahl reduzieren
+2. Bullet-Lifetime verkÃ¼rzen
+3. VFX vereinfachen/entfernen
+```
+
+---
+
+### RISIKO 9: Scope-Creep (zu viele Bonus-Features)
+**Schweregrad**: ðŸŸ¡ MITTEL  
+**Wahrscheinlichkeit**: MITTEL (50%)  
+**Betroffene Punkte**: Indirekt (Zeit fehlt fÃ¼r Pflicht)
+
+**Problem**:
+- Motivation fÃ¼r "coole Features"
+- Pflicht-Features leiden
+- Zeit lÃ¤uft ab
+
+**Mitigation**:
+```
+REGEL:
+Bonus-Features NUR wenn Pflicht 100% fertig!
+
+PRÃ„VENTIV:
+1. Feature-Freeze 1 Woche vor Abgabe
+2. Bonus-Features Liste priorisieren
+3. Nur Features mit < 2 Tage Aufwand
+
+REAKTIV:
+1. Bonus-Feature abbrechen
+2. ZurÃ¼ck zu Pflicht-Implementation
+3. README: "Planned Features" Sektion
+```
+
+---
+
+## ðŸŸ¢ NIEDRIGE RISIKEN
+
+### RISIKO 10: README.md unvollstÃ¤ndig
+**Schweregrad**: ðŸŸ¢ NIEDRIG  
+**Wahrscheinlichkeit**: NIEDRIG (10%, mit Checkliste)  
+**Betroffene Punkte**: Indirekt (Bewerter-Eindruck)
+
+**Mitigation**:
+```
+PRÃ„VENTIV:
+1. README-Template ab Tag 1
+2. Nach jeder Phase aktualisieren
+3. Checkliste vor Abgabe
+
+REAKTIV:
+1. Letzter Tag: README-Marathon
+2. Screenshots/GIFs einfÃ¼gen
+```
+
+---
+
+## Risiko-Tracking-Tabelle
+
+| ID | Risiko | Schweregrad | Wahrscheinlichkeit | Status | Letzte PrÃ¼fung |
+|----|--------|-------------|-------------------|--------|----------------|
+| R1 | FishNet Authority | ðŸ”´ KRITISCH | HOCH | âš ï¸ Offen | - |
+| R2 | Bullet-Sync | ðŸ”´ KRITISCH | SEHR HOCH | âš ï¸ Offen | - |
+| R3 | PHP/SQL Backend | ðŸ”´ KRITISCH | MITTEL | âš ï¸ Offen | - |
+| R4 | Enemy-AI | ðŸŸ  HOCH | MITTEL | âš ï¸ Offen | - |
+| R5 | Boss/Waves | ðŸŸ  HOCH | NIEDRIG | âœ… Mitigiert (Waves) | - |
+| R6 | Git-Merge | ðŸŸ  HOCH | HOCH (wenn Team) | âš ï¸ Offen | - |
+| R7 | Unity 6 Bugs | ðŸŸ¡ MITTEL | NIEDRIG | âš ï¸ Offen | - |
+| R8 | Performance | ðŸŸ¡ MITTEL | MITTEL | âš ï¸ Offen | - |
+| R9 | Scope-Creep | ðŸŸ¡ MITTEL | MITTEL | âš ï¸ Offen | - |
+| R10 | README | ðŸŸ¢ NIEDRIG | NIEDRIG | âš ï¸ Offen | - |
+
+**Legende**:
+- âš ï¸ Offen: Risiko aktiv, Monitoring erforderlich
+- ðŸ” Beobachtet: Anzeichen vorhanden, noch unkritisch
+- âœ… Mitigiert: MaÃŸnahmen erfolgreich, Risiko reduziert
+- âŒ Eingetreten: Schaden eingetreten, Reaktiv-MaÃŸnahmen aktiv
+
+---
+
+## Eskalations-Protokoll
+
+### Level 1: Self-Service (< 1 Stunde Blockade)
+1. Dokumentation lesen
+2. Google/StackOverflow
+3. Unity Forum
+
+### Level 2: Community (1-4 Stunden Blockade)
+1. FishNet Discord
+2. Reddit (r/Unity3D, r/gamedev)
+3. Kommilitonen fragen
+
+### Level 3: Expert Help (> 4 Stunden Blockade)
+1. Dozent kontaktieren
+2. Alternative Implementierung erwÃ¤gen
+3. Fallback-Strategie aktivieren
+
+### Level 4: Notfall (> 1 Tag Blockade)
+1. Feature-Scope reduzieren
+2. Workaround implementieren
+3. Dokumentation anpassen (README: Known Limitations)
+
+---
+
+## WÃ¶chentliche Risiko-Review
+
+**Jeden Sonntag**:
+```
+[ ] Tabelle aktualisieren
+[ ] Neue Risiken identifizieren
+[ ] Eingetretene Risiken dokumentieren
+[ ] Mitigation-Status prÃ¼fen
+[ ] NÃ¤chste Woche planen
+```
+
+**Template fÃ¼r Updates**:
+```
+RISIKO: [Name]
+STATUS: Offen â†’ Beobachtet / Mitigiert / Eingetreten
+NOTIZEN: [Was ist passiert, was wurde getan]
+NÃ„CHSTE SCHRITTE: [Action Items]
+```

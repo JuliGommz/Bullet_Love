@@ -1,0 +1,442 @@
+# Implementierungs-Roadmap
+
+**Projektzeitraum**: Jetzt â†’ 23.01.2026  
+**Strategie**: Iterativ, fundierte Basis vor Features  
+**Risiko-Ansatz**: Kritische Komponenten zuerst
+
+---
+
+## Phase-Ãœbersicht
+
+| Phase | Dauer | Fokus | Punkte-Ziel |
+|-------|-------|-------|-------------|
+| 1 | 3-4 Tage | Infrastructure | 0 (Setup) |
+| 2 | 5-7 Tage | Player Foundation | 25 (10+15) |
+| 3 | 5-7 Tage | Shooting Core | 20 |
+| 4 | 5-7 Tage | Enemy System | 15 |
+| 5 | 5-7 Tage | Gameflow & HUD | 20 (10+10) |
+| 6 | Verbleibend | Bonus & Polish | 20 (max) |
+
+---
+
+## PHASE 1: Infrastructure (3-4 Tage)
+
+**Ziel**: Solides technisches Fundament
+
+### Setup Tasks
+```
+[ ] Unity 6000.0.62f1 Projekt anlegen
+    - Project Name: BulletHell_Multiplayer
+    - Template: 2D Core
+    - Version Control: Git
+
+[ ] FishNet Integration
+    - Package Import (Asset Store oder GitHub)
+    - NetworkManager Scene Setup
+    - Transport Configuration (Tugboat/FishySteamworks)
+
+[ ] Git Repository Structure
+    - .gitignore konfiguriert
+    - Initial Commit
+    - GitHub Repository angelegt (Ã¶ffentlich)
+    - README.md Template
+
+[ ] Ordnerstruktur
+    Assets/_Project/
+    â”œâ”€â”€ Scripts/Network/
+    â”œâ”€â”€ Scripts/Player/
+    â”œâ”€â”€ Scripts/Enemies/
+    â”œâ”€â”€ Scripts/Projectiles/
+    â”œâ”€â”€ Scripts/UI/
+    â”œâ”€â”€ Scripts/Persistence/
+    â”œâ”€â”€ Prefabs/Player/
+    â”œâ”€â”€ Prefabs/Enemies/
+    â”œâ”€â”€ Prefabs/Projectiles/
+    â”œâ”€â”€ Scenes/
+    â””â”€â”€ Art/
+
+[ ] Test Scene Setup
+    - Bootstrap Scene (NetworkManager)
+    - Game Scene (Spielfeld)
+    - Scene-Switching Test
+```
+
+**Deliverable**: Funktionierende Host/Client-Verbindung (leere Szene)
+
+---
+
+## PHASE 2: Player Foundation (5-7 Tage)
+
+**Ziel**: 25 Punkte (Multiplayer-Basis 10P + Player-Steuerung 15P)
+
+### Player NetworkObject
+```
+[ ] Player Prefab erstellen
+    - 2D Sprite (Placeholder OK)
+    - Rigidbody2D (Dynamic)
+    - Collider2D
+    - NetworkObject Component
+    - NetworkTransform Component
+
+[ ] PlayerController Script
+    - NetworkBehaviour ableiten
+    - [IsOwner] Movement (WASD)
+    - Speed Variable (SyncVar?)
+    - Rotation folgt Maus/Input
+
+[ ] Ownership Setup
+    - Nur Owner kann steuern
+    - Client Prediction (optional, spÃ¤ter)
+    - Server Authority fÃ¼r Position
+
+[ ] SyncVar Implementation
+    - PlayerName (string) [SyncVar]
+    - CurrentHP (int) [SyncVar]
+    - PlayerColor (Color) [SyncVar]
+    - OnChange-Callbacks testen
+
+[ ] Camera Follow
+    - Nur eigener Player wird verfolgt
+    - Smooth Camera (Cinemachine optional)
+
+[ ] Spawning System
+    - NetworkManager Spawner
+    - Spawn-Points Definition
+    - Player-Assignment (Host = P1, Client = P2)
+```
+
+**Test-Kriterien**:
+- Zwei Instanzen verbinden sich
+- Jeder sieht beide Player
+- Jeder steuert nur seinen eigenen
+- SyncVars werden korrekt angezeigt
+
+---
+
+## PHASE 3: Shooting Core (5-7 Tage)
+
+**Ziel**: 20 Punkte (Shooting & Bullet-Hell Mechaniken)
+
+### Projektil-System
+```
+[ ] Bullet Prefab (NetworkObject)
+    - 2D Sprite
+    - Rigidbody2D (Kinematic oder Dynamic)
+    - Collider2D (Trigger)
+    - NetworkObject
+    - NetworkTransform
+
+[ ] Bullet Script (NetworkBehaviour)
+    - Movement (FixedUpdate)
+    - Lifetime (Auto-Destroy nach 5s)
+    - Damage Value
+    - Owner-Tracking (wer hat geschossen?)
+
+[ ] Bullet Pooling System
+    - Object Pool (100+ Bullets)
+    - Network-Spawn Ã¼ber Pool
+    - Recycling statt Destroy
+
+[ ] Shooting System (PlayerController)
+    - Fire Input (Mouse/Space)
+    - [ServerRpc] ShootServerRpc()
+    - Cooldown Timer (0.2s)
+    - Muzzle-Position Offset
+
+[ ] Pattern 1: Straight Shot
+    - Single Bullet Richtung Maus
+    - Velocity Assignment
+
+[ ] Pattern 2: Spread Shot
+    - 3-5 Bullets in FÃ¤cher-Formation
+    - Angle-Offset Berechnung
+
+[ ] Hit Detection
+    - OnTriggerEnter2D (Bullet â†’ Enemy/Player)
+    - [ServerRpc] ApplyDamageServerRpc()
+    - Bullet-Destroy nach Hit
+```
+
+**Test-Kriterien**:
+- Bullets spawnen auf beiden Clients
+- Hits werden erkannt (beide Seiten)
+- Keine Ghost-Bullets
+- Cooldown funktioniert
+
+---
+
+## PHASE 4: Enemy System (5-7 Tage)
+
+**Ziel**: 15 Punkte (Gegner-, Wave- oder Boss-System)
+
+### Enemy Foundation
+```
+[ ] Enemy Base Class (NetworkBehaviour)
+    - HP System (SyncVar)
+    - Movement AI (abstract)
+    - Death Event
+    - Score-Value
+
+[ ] Enemy Type 1: Chaser
+    - Folgt nÃ¤chstem Spieler
+    - Einfaches Pathfinding (Vector2.MoveTowards)
+    - Contact-Damage
+
+[ ] Enemy Type 2: Shooter
+    - HÃ¤lt Distanz
+    - SchieÃŸt Bullets (Enemy-Bullet Prefab)
+    - Fire-Rate: 1-2s
+
+[ ] Enemy Spawner (Server-Only)
+    - Spawn-Points Array
+    - Spawn-Interval
+    - [Server] Spawn-Logic
+    - Enemy-Count Limit
+
+[ ] Wave-System (empfohlen statt Boss)
+    - Wave-Definition (ScriptableObject?)
+    - Wave 1: 5x Chaser
+    - Wave 2: 3x Chaser + 2x Shooter
+    - Wave 3: 10x Mixed
+    - Wave-Clear Detection
+
+[ ] Enemy Bullets
+    - Separater Prefab (andere Farbe)
+    - Collider: Nur Player-Layer
+    - Damage: 10 HP
+```
+
+**Test-Kriterien**:
+- Enemies spawnen nur auf Server
+- Alle Clients sehen gleiche Enemies
+- Enemy-Bullets treffen Player
+- Wave-Progression funktioniert
+
+---
+
+## PHASE 5: Gameflow & HUD (5-7 Tage)
+
+**Ziel**: 20 Punkte (Leben & Gameflow 10P + HUD & Score 10P)
+
+### Health System Integration
+```
+[ ] PlayerHealth Script (NetworkBehaviour)
+    - MaxHP / CurrentHP [SyncVar]
+    - TakeDamage() [ServerRpc]
+    - Death Event
+    - Respawn-Logic (optional)
+
+[ ] Damage Application
+    - Bullet â†’ Player: -10 HP
+    - Enemy Contact: -20 HP
+    - Death bei HP â‰¤ 0
+
+[ ] Score System
+    - ScoreManager (Singleton, NetworkBehaviour)
+    - Player1Score / Player2Score [SyncVar]
+    - AddScore() [ServerRpc]
+    - Kill-Reward: 10 Points
+    - Wave-Clear-Bonus: 50 Points
+```
+
+### Game States
+```
+[ ] GameStateManager (NetworkBehaviour)
+    - Enum: Lobby, Playing, GameOver, Victory
+    - CurrentState [SyncVar]
+    - State-Transition Events
+
+[ ] Start Sequence
+    - Countdown: 3...2...1...GO!
+    - Enemy-Spawner aktivieren
+    - Score auf 0 setzen
+
+[ ] Game Over Condition
+    - Beide Spieler tot: Game Over
+    - Letzter Spieler tot: Game Over
+    - Screen: "GAME OVER" + Final Score
+
+[ ] Victory Condition
+    - Wave X abgeschlossen: Victory
+    - Screen: "VICTORY!" + Final Score
+
+[ ] Restart/Return to Lobby
+    - Button: "Restart"
+    - Scene neu laden (Server authority)
+```
+
+### HUD Implementation
+```
+[ ] HUD Canvas (Screen Space - Overlay)
+    - Player 1: HP Bar (oben links)
+    - Player 1: Score (oben links)
+    - Player 2: HP Bar (oben rechts)
+    - Player 2: Score (oben rechts)
+    - Wave-Anzeige: "Wave 3/5" (Mitte oben)
+
+[ ] HP Bar Update
+    - Subscribe zu HP [SyncVar] OnChange
+    - Slider.value = CurrentHP / MaxHP
+
+[ ] Score Update
+    - Subscribe zu Score [SyncVar] OnChange
+    - Text: "Score: 1250"
+
+[ ] Game Over/Victory Screen
+    - Panel (deaktiviert bis Trigger)
+    - Text: Status + Final Score
+    - Button: Restart
+```
+
+### PHP/SQL Highscore Backend
+```
+[ ] Backend Setup (Server oder lokaler XAMPP)
+    - MySQL Datenbank: "bullethell_scores"
+    - Tabelle: id, player_name, score, timestamp
+    - PHP Script: submit_score.php (INSERT)
+    - PHP Script: get_highscores.php (SELECT TOP 10)
+
+[ ] Unity Integration
+    - UnityWebRequest POST zu submit_score.php
+    - UnityWebRequest GET von get_highscores.php
+    - JSON Parsing (JsonUtility)
+    - Highscore-Anzeige (UI List)
+
+[ ] Test
+    - Score nach Game Over submitten
+    - Highscore-Liste beim Start laden
+    - Top 10 anzeigen
+```
+
+**Test-Kriterien**:
+- HP sinkt bei Treffer
+- Score steigt bei Kill
+- Game Over bei Tod
+- HUD zeigt korrekte Werte
+- Highscore wird gespeichert
+
+---
+
+## PHASE 6: Bonus & Polish (Verbleibende Zeit)
+
+**Ziel**: Maximal 20 Bonus-Punkte
+
+### Priorisierte Bonus-Features (Pick 2-3)
+
+#### Option A: Power-Ups (5-10 Punkte)
+```
+[ ] PowerUp Base Class (NetworkObject)
+    - Spawn-System (random Positionen)
+    - Pickup Detection (OnTriggerEnter2D)
+    - Effect Application [ServerRpc]
+
+[ ] PowerUp Types
+    - Shield: +50 HP Temporary
+    - FireRate++: Cooldown halbiert (5s)
+    - Bomb: Alle Enemies -50 HP
+```
+
+#### Option B: Komplexere Bullet-Patterns (5-10 Punkte)
+```
+[ ] Pattern 3: Spiral
+    - Bullets in Rotations-Offset
+    - Angle += 15Â° pro Bullet
+
+[ ] Pattern 4: Ring
+    - 8 Bullets, 360Â°/8 = 45Â° Offset
+
+[ ] Pattern 5: Homing (Enemy)
+    - Bullet rotiert zu nÃ¤chstem Spieler
+    - Limited Turn-Rate
+```
+
+#### Option C: VFX/SFX (5-10 Punkte)
+```
+[ ] Visual Effects
+    - Muzzle Flash (Particle System)
+    - Explosion bei Enemy-Death
+    - Hit-Feedback (Flash Sprite)
+
+[ ] Sound Effects
+    - Shoot Sound
+    - Hit Sound
+    - Explosion Sound
+    - Background Music
+
+[ ] Camera Shake
+    - Bei groÃŸen Explosionen
+    - Smooth Damping zurÃ¼ck
+```
+
+#### Option D: Lobby-System (5-10 Punkte)
+```
+[ ] GitHub Template Integration
+    - Patrick-van-Halm/FishNetworking-LobbySystem
+    - Lobby Scene
+
+[ ] Features
+    - Player-Liste Anzeige
+    - Ready-Toggle
+    - Start nur wenn beide Ready
+```
+
+---
+
+## Meilenstein-Checkpoints
+
+### Checkpoint 1 (Ende Woche 2)
+- [ ] FishNet funktioniert
+- [ ] Player bewegt sich synchron
+- [ ] 25 Punkte gesichert
+
+### Checkpoint 2 (Ende Woche 4)
+- [ ] Shooting funktioniert
+- [ ] Enemies spawnen
+- [ ] 60 Punkte gesichert
+
+### Checkpoint 3 (1 Woche vor Abgabe)
+- [ ] Game Over/Victory implementiert
+- [ ] HUD vollstÃ¤ndig
+- [ ] 80 Punkte gesichert
+- [ ] Highscore Backend lÃ¤uft
+
+### Final Sprint (Letzte Woche)
+- [ ] Bug-Fixing
+- [ ] Bonus-Features (1-2)
+- [ ] README.md fertig
+- [ ] GitHub sauber
+- [ ] 90-100 Punkte mÃ¶glich
+
+---
+
+## Zeitmanagement-Notizen
+
+**Puffer-Tage einplanen**:
+- FishNet Setup: +1 Tag (hÃ¤ufige Stolperfalle)
+- Bullet-Synchronisation: +2 Tage (komplex)
+- PHP/SQL Backend: +1 Tag (externe Dependency)
+
+**Kritischer Pfad**:
+PHASE 1 â†’ PHASE 2 â†’ PHASE 3 â†’ PHASE 4 â†’ PHASE 5  
+(Reihenfolge nicht Ã¤nderbar, AbhÃ¤ngigkeiten)
+
+**Parallelisierbar** (bei 2er-Team):
+- Person A: Player + Shooting
+- Person B: Enemies + Spawner
+- Gemeinsam: Integration + HUD
+
+---
+
+## Review-Punkte vor Abgabe
+
+```
+[ ] Alle 80 Pflicht-Punkte implementiert
+[ ] README.md vollstÃ¤ndig (siehe Requirements)
+[ ] .gitignore korrekt (keine Library/)
+[ ] Commits regelmÃ¤ÃŸig und aussagekrÃ¤ftig
+[ ] Code-Kommentare (mindestens Header)
+[ ] Keine Compiler-Warnings
+[ ] Build erfolgreich (beide Plattformen getestet)
+[ ] Highscore-Backend erreichbar
+[ ] GitHub Repository Ã¶ffentlich
+```

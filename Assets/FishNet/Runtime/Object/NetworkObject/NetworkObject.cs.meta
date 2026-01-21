@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 26b716c41e9b56b4baafaf13a523ba2e
+AssetOrigin:
+  serializedVersion: 1
+  productId: 207815
+  packageName: 'FishNet: Networking Evolved'
+  packageVersion: 4.6.18R
+  assetPath: Assets/FishNet/Runtime/Object/NetworkObject/NetworkObject.cs
+  uploadId: 826418
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

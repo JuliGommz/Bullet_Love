@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82227f73c30dda4a9f483559cffd864, type: 3}
+  m_Name: Weapon_Laser07
+  m_EditorClassIdentifier: 
+  bulletSprite: {fileID: 5167005845322699638, guid: 76b671e6550850640a2f2ee1157bed96, type: 3}
+  weaponName: Spread Laser
+  baseFireRate: 0.35
+  baseCooldown: 0.25
+  range: 8
+  damage: 8
+  firePointOffset: {x: -0.3, y: 0.5}
+  directionAngleOffset: 30

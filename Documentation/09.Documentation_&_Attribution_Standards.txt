@@ -1,0 +1,531 @@
+# Documentation & Attribution Standards
+
+**Version**: 1.0  
+**Purpose**: Academic documentation and attribution compliance  
+**Application**: After implementation, before submission  
+**Dependencies**: References CODE_DEVELOPMENT_STANDARDS.md for implementation context
+
+---
+
+## 🎓 ACADEMIC ATTRIBUTION SYSTEM
+
+### Three-Tier Classification
+
+**Mandatory**: Every new code file MUST contain attribution header
+
+**Classification Categories**:
+```
+[HUMAN-AUTHORED]
+  → Developer wrote code independently
+  → No AI assistance in implementation
+  → Original problem-solving
+
+[AI-ASSISTED]
+  → Collaborative development
+  → Human provides direction/architecture
+  → AI assists with implementation details
+  → Human validates and modifies output
+
+[AI-GENERATED]
+  → AI wrote initial implementation
+  → Human provided requirements/specifications
+  → Human reviewed and approved
+  → May include human modifications
+```
+
+---
+
+### Standard Attribution Header
+
+**Template** (Unity C#):
+```csharp
+/*
+====================================================================
+* [SCRIPT NAME] - [Brief Description]
+====================================================================
+* Project: [Project Name]
+* Course: [Course Name - if academic]
+* Developer: [Your Name]
+* Date: [Creation Date]
+* Version: [Version Number]
+* 
+* ⚠️ WICHTIG: KOMMENTIERUNG NICHT LÖSCHEN! ⚠️
+* Diese detaillierte Authorship-Dokumentation ist für die akademische
+* Bewertung erforderlich und darf nicht entfernt werden!
+* 
+* AUTHORSHIP CLASSIFICATION:
+* 
+* [HUMAN-AUTHORED]
+* - [Specific human contributions]
+* - [Design decisions made]
+* - [Problem-solving approaches]
+* 
+* [AI-ASSISTED]
+* - [Collaborative enhancement areas]
+* - [AI suggestions integrated]
+* - [Human validation/modification]
+* 
+* [AI-GENERATED]
+* - [AI implementation contributions]
+* - [Generated code reviewed by human]
+* - [Human approval/modifications]
+* 
+* DEPENDENCIES:
+* - [Required components/services]
+* - [External libraries used]
+* 
+* NOTES:
+* - [Special considerations]
+* - [Known limitations]
+* - [Future improvement areas]
+====================================================================
+*/
+```
+
+**Template** (JavaScript/Web):
+```javascript
+/**
+ * ====================================================================
+ * [FILE NAME] - [Brief Description]
+ * ====================================================================
+ * Project: [Project Name]
+ * Developer: [Your Name]
+ * Date: [Creation Date]
+ * Version: [Version Number]
+ * 
+ * ⚠️ IMPORTANT: DO NOT DELETE COMMENTS! ⚠️
+ * This authorship documentation is required for academic evaluation
+ * and must not be removed!
+ * 
+ * AUTHORSHIP CLASSIFICATION:
+ * 
+ * [HUMAN-AUTHORED]
+ * - [Specific human contributions]
+ * 
+ * [AI-ASSISTED]
+ * - [Collaborative areas]
+ * 
+ * [AI-GENERATED]
+ * - [AI contributions reviewed]
+ * 
+ * ARCHITECTURE:
+ * - [Design patterns used]
+ * - [Key architectural decisions]
+ * 
+ * STANDARDS:
+ * - [Coding standards followed]
+ * - [Browser compatibility]
+ * ====================================================================
+ */
+```
+
+---
+
+### Attribution Guidelines
+
+**What to Document**:
+```
+✓ Who wrote initial implementation
+✓ Who provided design/architecture decisions
+✓ What AI assistance was used
+✓ What human validation/modification occurred
+✓ Key dependencies and requirements
+```
+
+**Be Specific**:
+```
+✓ GOOD: 
+  [HUMAN-AUTHORED]
+  - Component-First architecture design
+  - Service Locator pattern selection
+  - Error handling strategy
+  
+  [AI-ASSISTED]
+  - Initial ServiceLocator implementation
+  - Thread-safety improvements suggested by AI
+  - Human validated and modified error handling
+
+✗ VAGUE:
+  [HUMAN-AUTHORED]
+  - Some code
+  
+  [AI-ASSISTED]
+  - AI helped
+```
+
+---
+
+## 📝 INLINE DOCUMENTATION STANDARDS
+
+### Function/Method Documentation
+
+**Required for All Public Methods**:
+```csharp
+/// <summary>
+/// Calculates damage based on attack power and target defense
+/// </summary>
+/// <param name="attackPower">Attacker's strength value</param>
+/// <param name="defense">Target's defense rating</param>
+/// <returns>Final damage amount after calculations</returns>
+public int CalculateDamage(int attackPower, int defense)
+{
+    // Implementation
+}
+```
+
+**JavaScript JSDoc**:
+```javascript
+/**
+ * Filters projects by pillar category
+ * @param {string} pillar - Pillar category ('human', 'learning', 'ai', or 'all')
+ * @param {HTMLElement} btn - Button element that triggered filter
+ * @returns {void}
+ */
+function filterProjects(pillar, btn) {
+    // Implementation
+}
+```
+
+---
+
+### Comment Best Practices
+
+**Explain WHY, Not WHAT**:
+```csharp
+// ✓ GOOD: Explain reasoning
+// Using Awake instead of Start to ensure initialization before other scripts
+void Awake() { ... }
+
+// ✗ BAD: State obvious
+// This is the Awake method
+void Awake() { ... }
+```
+
+**Document Complex Logic**:
+```javascript
+// ✓ GOOD: Clarify algorithm
+// Fisher-Yates shuffle for unbiased randomization
+// Iterates backwards to avoid reprocessing elements
+for (let i = array.length - 1; i > 0; i--) { ... }
+
+// ✗ BAD: Don't comment self-explanatory code
+// Loop through array
+for (let i = 0; i < array.length; i++) { ... }
+```
+
+**Mark Technical Debt**:
+```csharp
+// TODO: Refactor to use object pooling for performance
+// Current instantiation method causes GC spikes
+Instantiate(projectilePrefab);
+
+// FIXME: Edge case bug when health exactly equals zero
+// Need to handle simultaneous death triggers
+if (health <= 0) { ... }
+
+// HACK: Temporary workaround for Unity 2022 serialization bug
+// Remove when Unity fixes issue in 2023.1+
+[SerializeField, HideInInspector]
+private int workaroundValue;
+```
+
+---
+
+### Architecture Documentation
+
+**File Header Architecture Notes**:
+```javascript
+/**
+ * ARCHITECTURE:
+ * - Event delegation pattern for all user interactions
+ * - Modal + Lightbox dual-overlay system
+ * - Three-Pillar color-coding semantic system
+ * - Mobile-first responsive design
+ * - Zero external dependencies (vanilla JS)
+ * 
+ * STANDARDS:
+ * - ES6+ JavaScript
+ * - CSP-compliant (no inline handlers)
+ * - WCAG 2.1 Level AA accessibility
+ * - BEM CSS naming convention
+ */
+```
+
+---
+
+## 🗂️ PROJECT-LEVEL DOCUMENTATION
+
+### README Requirements
+
+**Minimum README Content**:
+```markdown
+# [Project Name]
+
+## Overview
+Brief description of project purpose and goals
+
+## Features
+- Key feature 1
+- Key feature 2
+- Key feature 3
+
+## Technologies Used
+- Unity 2022 / HTML5/CSS3/JavaScript
+- [Other frameworks/libraries]
+
+## Academic Context
+- Course: [Course Name]
+- Semester: [Semester/Year]
+- Institution: [University Name]
+
+## Setup Instructions
+1. Step-by-step setup
+2. Dependencies to install
+3. How to run project
+
+## Attribution
+- Developer: [Name]
+- AI Assistance: [Claude/ChatGPT] for [specific areas]
+- Third-party assets: [List sources]
+
+## Known Issues
+- Issue 1: Description and workaround
+- Issue 2: Description and status
+
+## Future Improvements
+- Planned feature 1
+- Optimization area 1
+```
+
+---
+
+### Architecture Documentation
+
+**ARCHITECTURE_OVERVIEW.md**:
+```markdown
+# [Project] Architecture Overview
+
+## System Design
+High-level architecture diagram or description
+
+## Key Components
+### Component 1: [Name]
+- Purpose: What it does
+- Dependencies: What it needs
+- Location: File path
+
+### Component 2: [Name]
+...
+
+## Design Patterns Used
+- Pattern 1: Where and why
+- Pattern 2: Where and why
+
+## Data Flow
+Description of how data moves through system
+
+## Integration Points
+How components communicate
+
+## Technology Decisions
+### Decision 1: [Technology Choice]
+- Rationale: Why chosen
+- Alternatives considered: What else was evaluated
+- Trade-offs: What was gained/lost
+```
+
+---
+
+### Known Issues Documentation
+
+**KNOWN_ISSUES_DECISIONS_LOG.md**:
+```markdown
+# Known Issues & Decisions Log
+
+## Active Issues
+
+### Issue #1: [Title]
+**Date Identified**: YYYY-MM-DD
+**Severity**: High/Medium/Low
+**Description**: What the problem is
+**Workaround**: Temporary solution (if any)
+**Status**: Open/In Progress/Resolved
+**Resolution**: How it was fixed (when resolved)
+
+## Architectural Decisions
+
+### Decision #1: [Title]
+**Date**: YYYY-MM-DD
+**Context**: Why decision was needed
+**Decision**: What was chosen
+**Rationale**: Why this choice
+**Consequences**: Expected impacts
+**Alternatives**: What else was considered
+```
+
+---
+
+## 🎯 ACADEMIC SUBMISSION DOCUMENTATION
+
+### Submission Package Requirements
+
+**Documentation Checklist**:
+```
+[ ] README.md with complete setup instructions
+[ ] Architecture documentation (if complex project)
+[ ] Attribution headers on ALL code files
+[ ] Known issues documented
+[ ] Dependencies listed
+[ ] Setup/build instructions
+[ ] Third-party asset sources credited
+```
+
+**University-Specific** (adjust to requirements):
+```
+Document Requirements (1-2 pages):
+  ✓ Project functions/features description
+  ✓ Tools and technologies used
+  ✓ Special features/innovations
+  ✓ Challenges encountered and solutions
+  ✓ Learning outcomes
+  
+Optional:
+  ✓ Video trailer/demo (OBS recording)
+  ✓ Presentation slides
+  ✓ User manual
+```
+
+---
+
+### Innovation Documentation
+
+**For Academic Bonus Points**:
+```markdown
+# Innovation Documentation
+
+## Innovation #1: [Feature Name]
+**Category**: Technical/Design/User Experience
+**Description**: What makes this innovative
+**Implementation**: How it was achieved
+**Benefits**: Why it improves the project
+**Complexity**: Technical challenges overcome
+**Learning Value**: What was learned
+
+## Innovation #2: [Feature Name]
+...
+```
+
+**Examples from Journey Project**:
+- Clean Architecture implementation
+- Data/Behavior separation pattern
+- Distance-based contemplative audio system
+- ScriptableObject configuration pattern
+- New Input System integration
+
+---
+
+## 🚫 DOCUMENTATION ANTI-PATTERNS
+
+### Never Do This
+
+**Don't Delete Attribution Headers**:
+```
+❌ Removing academic headers to "clean up" code
+❌ Deleting authorship classification
+❌ Removing dependency documentation
+```
+
+**Reason**: Academic integrity violation, evaluation requirement
+
+**Don't Leave Dead Code**:
+```
+❌ Commented-out old implementations
+❌ Unused imports/using statements
+❌ Empty or placeholder comments
+```
+
+**Don't Write Misleading Comments**:
+```
+❌ Comments that don't match code
+❌ Outdated documentation after refactoring
+❌ Copy-pasted comments from elsewhere
+```
+
+**Don't Over-Document**:
+```
+❌ Commenting every line (noise)
+❌ Repeating what code obviously does
+❌ Documenting trivial getters/setters
+```
+
+---
+
+## ✅ DOCUMENTATION QUALITY CHECKLIST
+
+**Before Submission**:
+```
+Attribution Headers:
+[ ] All new files have headers
+[ ] Classification accurate (HUMAN/AI-ASSISTED/AI-GENERATED)
+[ ] Dependencies documented
+[ ] Dates current
+
+Inline Documentation:
+[ ] Public methods documented
+[ ] Complex logic explained
+[ ] TODOs/FIXMEs marked clearly
+[ ] Comments explain WHY, not WHAT
+
+Project Documentation:
+[ ] README complete
+[ ] Setup instructions tested
+[ ] Known issues documented
+[ ] Third-party credits present
+
+Academic Compliance:
+[ ] University requirements met
+[ ] Submission checklist complete
+[ ] Innovation features documented (if applicable)
+[ ] Learning outcomes reflected
+```
+
+---
+
+## 🔗 INTEGRATION WITH OTHER STANDARDS
+
+**Uses**:
+- CODE_DEVELOPMENT_STANDARDS.md for implementation context
+- QUALITY_VERIFICATION_STANDARDS.md for accuracy
+
+**Referenced By**:
+- WORKING_METHODOLOGY_STANDARDS.md for documentation phase
+
+---
+
+## 📊 DOCUMENTATION METRICS
+
+**Quality Indicators**:
+```
+✅ Every code file has attribution header
+✅ Public API fully documented
+✅ README accurately describes project
+✅ Setup instructions work for new users
+✅ No misleading or outdated comments
+```
+
+**Warning Signs**:
+```
+🔴 Missing attribution headers
+🔴 Commented-out code blocks
+🔴 Comments contradicting code
+🔴 Undocumented complex algorithms
+🔴 Incomplete README
+```
+
+---
+
+**Status**: Active  
+**Review Frequency**: Before each submission  
+**Owner**: Documentation standards (all projects)
+
+---

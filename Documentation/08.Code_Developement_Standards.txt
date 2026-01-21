@@ -1,0 +1,571 @@
+# Code Development Standards
+
+**Version**: 1.0  
+**Purpose**: Implementation guidelines for all coding activities  
+**Application**: During code writing, reviewing, and refactoring  
+**Dependencies**: References QUALITY_VERIFICATION_STANDARDS.md for verification
+
+---
+
+## 🎯 CORE DEVELOPMENT PRINCIPLES
+
+### Simplicity over Complexity
+
+**Definition**: Choose the simplest solution that solves the problem effectively
+
+**Application**:
+```
+✓ Avoid enterprise over-engineering patterns
+✓ Use academic-level appropriate complexity
+✓ Prefer readable code over clever code
+✓ Select patterns students can understand and learn from
+```
+
+**Examples**:
+```
+✓ SIMPLE: Direct event handlers over custom event bus (small projects)
+✓ SIMPLE: Plain arrays over custom collection classes (unless needed)
+✓ SIMPLE: Clear if-else over complex ternary chains
+
+✗ COMPLEX: Dependency injection frameworks (academic projects)
+✗ COMPLEX: Custom reflection-based systems (over-engineering)
+✗ COMPLEX: Abstract factory pattern (when simple factory suffices)
+```
+
+**When Complexity is Justified**:
+- Project explicitly requires it (academic learning goal)
+- Scale demands it (proven bottleneck)
+- Team size requires it (coordination need)
+- Reusability proven beneficial (not speculative)
+
+---
+
+### Component-First Methodology
+
+**Critical Rule**: Setup components/elements BEFORE writing scripts
+
+**Mandatorische Sequence**:
+```
+Phase 1: Analysis
+  → Identify all required components
+  → List dependencies
+  → Plan integration points
+
+Phase 2: Setup
+  → Create/configure ALL components FIRST
+  → Verify components exist in scene/DOM
+  → Configure initial properties
+
+Phase 3: Integration
+  → Write scripts referencing components
+  → Attach scripts to GameObjects/Elements
+  → Add academic attribution headers
+
+Phase 4: Validation
+  → Test functionality
+  → Verify no null references
+  → Check console for errors
+
+Phase 5: Documentation
+  → Document component dependencies
+  → Record implementation decisions
+```
+
+**Why This Matters**:
+- Prevents null reference exceptions
+- Ensures dependencies exist before use
+- Validates architecture before implementation
+- Reduces debugging time significantly
+
+**Unity-Specific**:
+```
+✓ CORRECT: 
+  1. Create GameObject in scene
+  2. Add required components (Rigidbody, Collider, etc.)
+  3. Write script referencing components
+  4. Attach script to GameObject
+
+✗ WRONG:
+  1. Write script first
+  2. Attach to GameObject
+  3. Discover missing components via errors
+```
+
+**Web-Specific**:
+```
+✓ CORRECT:
+  1. Create HTML elements with IDs/classes
+  2. Verify DOM structure
+  3. Write JavaScript selecting elements
+  4. Attach event listeners
+
+✗ WRONG:
+  1. Write JavaScript selecting non-existent elements
+  2. Create HTML later
+  3. Debug querySelector issues
+```
+
+---
+
+### Data/Behavior Separation Pattern
+
+**Principle**: Configuration separate from logic
+
+**Unity Implementation**:
+```
+ScriptableObject: Data containers
+  → Designer-friendly tweaking
+  → Reusable configurations
+  → No runtime behavior
+
+MonoBehaviour: Runtime behavior
+  → Unity lifecycle methods
+  → Interaction logic
+  → Scene integration
+
+Example:
+  EnemyData.cs (ScriptableObject)
+    → health, speed, damage values
+  
+  Enemy.cs (MonoBehaviour)
+    → TakeDamage(), Move(), Attack() methods
+    → References EnemyData for values
+```
+
+**Web Implementation**:
+```
+Data Layer: Pure data structures
+  → JSON configurations
+  → Constant definitions
+  → Static data arrays
+
+Presentation Layer: Rendering logic
+  → DOM manipulation
+  → Event handling
+  → State management
+
+Example:
+  projectData = [ {...} ]  // Data layer
+  
+  function renderProject(data) { ... }  // Presentation layer
+```
+
+**Benefits**:
+- Easy content updates (no code changes)
+- Testability (data mockable)
+- Designer/developer separation
+- Open/Closed Principle adherence
+
+---
+
+## 🏗️ ARCHITECTURE PATTERNS
+
+### Clean Architecture Principles
+
+**Layer Separation**:
+```
+Data Layer
+  → Pure data structures
+  → No business logic
+  → Serializable/configurable
+
+Logic Layer
+  → Business rules
+  → State management
+  → Algorithm implementation
+
+Presentation Layer
+  → UI/rendering
+  → User input handling
+  → Visual feedback
+```
+
+**Dependency Rule**:
+```
+→ Presentation depends on Logic
+→ Logic depends on Data
+→ Never reverse direction
+→ Data layer has zero dependencies
+```
+
+**Unity Example**:
+```
+Data: ScriptableObjects (item stats, NPC dialogue)
+Logic: Service classes (QuestService, InventoryService)
+Presentation: MonoBehaviours (UI controllers, player input)
+```
+
+**Web Example**:
+```
+Data: JavaScript objects/arrays (project data, config)
+Logic: Pure functions (filterProjects, sortItems)
+Presentation: DOM manipulation (renderGallery, updateUI)
+```
+
+---
+
+### Service Pattern (When Appropriate)
+
+**Use When**:
+- Multiple components need shared functionality
+- Cross-cutting concerns exist (audio, persistence)
+- Centralized state management needed
+
+**Implementation**:
+```
+Service Class
+  → Singleton or dependency injection
+  → Clear public API
+  → No direct Unity/DOM dependencies (testability)
+
+Service Locator (optional)
+  → Central registry
+  → Type-safe service retrieval
+  → Lifecycle management
+```
+
+**Unity Example**:
+```csharp
+public class AudioService : MonoBehaviour
+{
+    private static AudioService _instance;
+    public static AudioService Instance => _instance;
+    
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+    
+    public void PlaySound(AudioClip clip) { ... }
+}
+```
+
+**Web Example**:
+```javascript
+const lightboxService = {
+    isOpen: false,
+    currentIndex: 0,
+    
+    open(projectId, index) { ... },
+    close() { ... },
+    navigate(direction) { ... }
+};
+```
+
+**When NOT to Use**:
+- Simple projects (< 5 components)
+- No shared state needed
+- Over-engineering risk high
+
+---
+
+## 💻 CODE QUALITY STANDARDS
+
+### Naming Conventions
+
+**Variables**:
+```
+✓ Descriptive, clear purpose
+✓ camelCase (JavaScript, C# fields)
+✓ Avoid abbreviations (unless standard)
+
+Examples:
+  ✓ playerHealth, currentScore, isGameOver
+  ✗ ph, cs, igo
+```
+
+**Functions/Methods**:
+```
+✓ Verb-first naming
+✓ Describes action clearly
+✓ camelCase (JavaScript, C#)
+
+Examples:
+  ✓ CalculateDamage(), RenderGallery(), OpenModal()
+  ✗ Damage(), Gallery(), Modal()
+```
+
+**Classes**:
+```
+✓ Noun naming
+✓ PascalCase
+✓ Specific, not generic
+
+Examples:
+  ✓ QuestService, PlayerController, LightboxManager
+  ✗ Manager, Handler, Helper
+```
+
+**Constants**:
+```
+✓ Semantic naming
+✓ camelCase or SCREAMING_SNAKE_CASE (context-dependent)
+
+Examples:
+  ✓ maxHealth, DEFAULT_SPEED
+  ✓ pillarColors, API_BASE_URL
+```
+
+---
+
+### Code Structure
+
+**Method Complexity**:
+```
+✓ Single responsibility per method
+✓ Aim for < 20 lines per method
+✓ Extract complex logic to helpers
+✓ Readable without comments (self-documenting)
+```
+
+**File Organization**:
+```
+File Header
+  → Academic attribution
+  → Purpose statement
+  → Dependencies listed
+
+Imports/Using Statements
+  → Grouped logically
+  → Alphabetically sorted (optional)
+
+Constants/Configuration
+  → Top of file after imports
+
+Class/Module Definition
+  → Public API first
+  → Private helpers after
+```
+
+**Comment Guidelines**:
+```
+✓ Explain WHY, not WHAT (code shows what)
+✓ Document complex algorithms
+✓ Mark TODOs explicitly
+✓ Warn about gotchas/edge cases
+
+✗ Don't comment obvious code
+✗ Don't leave dead code commented out
+✗ Don't use comments as version control
+```
+
+---
+
+### Error Handling
+
+**Defensive Programming**:
+```csharp
+// Unity Example
+if (target == null)
+{
+    Debug.LogError("Target is null in Attack()");
+    return;
+}
+
+// Web Example
+if (!element) {
+    console.error('Element not found:', selector);
+    return;
+}
+```
+
+**Graceful Degradation**:
+```javascript
+// Fallback values
+const thumbnail = project.thumbnail || 
+                  (project.gallery?.[0]?.src) || 
+                  'placeholder.png';
+
+// Optional functionality
+try {
+    advancedFeature();
+} catch (error) {
+    console.warn('Advanced feature unavailable:', error);
+    // Continue with basic functionality
+}
+```
+
+**Validation**:
+```
+✓ Validate inputs at function entry
+✓ Check array bounds before access
+✓ Verify dependencies exist before use
+✓ Log errors with context (not just generic messages)
+```
+
+---
+
+## 🚫 ANTI-PATTERNS (NEVER)
+
+### Compilation Safety
+
+**No Unicode Symbols in Code**:
+```
+❌ FORBIDDEN:
+    // Check if player is alive ✓
+    const isAlive = health > 0; // ✅ works
+    
+✓ CORRECT:
+    // Check if player is alive (valid)
+    const isAlive = health > 0; // Works correctly
+```
+
+**Reason**: Compilation errors across platforms/editors
+
+---
+
+### Architecture Anti-Patterns
+
+**No Scripts Before Components**:
+```
+❌ Writing PlayerController.cs before creating Player GameObject
+❌ Selecting DOM elements before HTML exists
+❌ Referencing services before initialization
+```
+
+**No Enterprise Over-Engineering**:
+```
+❌ Complex abstract factories for simple object creation
+❌ Reflection-based systems in student projects
+❌ Custom serialization when built-in suffices
+❌ Premature optimization patterns
+```
+
+**No Premature Abstraction**:
+```
+❌ Creating interfaces with single implementation
+❌ Building frameworks before features
+❌ Abstracting before understanding requirements
+```
+
+---
+
+### Code Smell Avoidance
+
+**Avoid**:
+```
+❌ God classes (> 500 lines, many responsibilities)
+❌ Magic numbers (unexplained constants)
+❌ Deep nesting (> 3 levels of indentation)
+❌ Long parameter lists (> 4 parameters)
+❌ Duplicate code (DRY principle violation)
+```
+
+---
+
+## 🔄 REFACTORING GUIDELINES
+
+### When to Refactor
+
+**Refactor When**:
+```
+✓ Code works but unclear
+✓ Duplication detected (3+ times)
+✓ Method too long (> 30 lines)
+✓ Performance bottleneck proven
+✓ Adding feature reveals poor structure
+```
+
+**Don't Refactor When**:
+```
+✗ Code works and deadline approaching
+✗ Not confident in test coverage
+✗ Unclear what improvement looks like
+✗ Refactoring for theoretical future needs
+```
+
+---
+
+### Refactoring Protocol
+
+**Safe Refactoring Process**:
+```
+1. Original_Baseline_Recovery
+   → Commit/save working version
+   → Document current functionality
+   
+2. Incremental Changes
+   → ONE change type per iteration
+   → Test after each change
+   → Verify functionality preserved
+   
+3. Validation
+   → All tests pass (if tests exist)
+   → Manual testing confirms behavior
+   → No console errors
+   
+4. Documentation
+   → Update comments if structure changed
+   → Record refactoring decisions
+```
+
+---
+
+## 🎓 ACADEMIC CONTEXT CONSIDERATIONS
+
+### Learning-Appropriate Complexity
+
+**Student Project Standards**:
+```
+✓ Patterns that teach valuable concepts
+✓ Complexity justified by learning goals
+✓ Code others can understand and learn from
+✓ Balance between best practices and simplicity
+```
+
+**Avoid**:
+```
+✗ Production-grade enterprise patterns
+✗ Clever tricks over clear code
+✗ Frameworks that obscure fundamentals
+✗ Complexity without educational value
+```
+
+---
+
+## 📋 CODE REVIEW CHECKLIST
+
+**Before Submitting/Committing Code**:
+```
+[ ] Component-First methodology followed
+[ ] No Unicode symbols in code
+[ ] Academic attribution header present (new files)
+[ ] Naming conventions consistent
+[ ] No magic numbers (constants defined)
+[ ] Error handling present where needed
+[ ] Comments explain WHY, not WHAT
+[ ] No enterprise over-engineering
+[ ] Simplicity principle honored
+[ ] Code compiles without errors
+[ ] Console clear of warnings (or documented)
+[ ] Functionality tested manually
+```
+
+---
+
+## 🔗 INTEGRATION WITH OTHER STANDARDS
+
+**References**:
+- Uses QUALITY_VERIFICATION_STANDARDS.md for pre-commit validation
+- Works with DOCUMENTATION_ATTRIBUTION_STANDARDS.md for headers
+- Follows WORKING_METHODOLOGY_STANDARDS.md for process
+
+**Referenced By**:
+- WORKING_METHODOLOGY (for implementation phase)
+- DOCUMENTATION_ATTRIBUTION (for code commenting)
+
+---
+
+**Status**: Active  
+**Review Frequency**: Quarterly or on technology upgrade  
+**Owner**: Code implementation standards (all projects)
+
+---
+
+**END OF CODE DEVELOPMENT STANDARDS v1.0**

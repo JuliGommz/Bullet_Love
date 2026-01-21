@@ -1,0 +1,412 @@
+# Claude Project Knowledge Base - Storage & Update Strategy
+
+**Version**: 1.0  
+**Purpose**: Maintain optimal Claude Project documentation (5-12 documents)  
+**Principle**: Structure > Quantity | Currency > Completeness | Signal > Noise
+
+---
+
+## 📁 TIER SYSTEM ARCHITECTURE
+
+### Tier 1: CORE STANDARDS (Permanent)
+**Document Count**: 1-2  
+**Update Frequency**: Quarterly or on methodology change  
+**Storage Location**: Root level of Project
+
+```
+📄 UNIVERSAL_LLM_DEVELOPMENT_STANDARDS.md
+   Purpose: Technology-agnostic development principles
+   Owner: Cross-project meta-standards
+   
+📄 PROJECT_SPECIFIC_STANDARDS.md
+   Purpose: Unity/Web/Technology-specific rules
+   Owner: Individual project requirements
+```
+
+**Update Triggers**:
+- New development methodology adopted
+- Technology stack upgrade
+- Academic requirements change
+- Major workflow improvement discovered
+
+**Archive Rule**: Never delete - version instead (v1.0, v2.0)
+
+---
+
+### Tier 2: ACTIVE CONTEXT (Dynamic)
+**Document Count**: 2-4  
+**Update Frequency**: Weekly during active development  
+**Storage Location**: Root level of Project
+
+```
+📄 CURRENT_PHASE_STATUS.md
+   Purpose: Active sprint/phase goals, progress, blockers
+   Owner: Current development cycle
+   
+📄 ARCHITECTURE_OVERVIEW.md
+   Purpose: System design, key components, integration points
+   Owner: Technical structure
+   
+📄 COMPONENT_API_REFERENCE.md
+   Purpose: Key interfaces, services, data structures
+   Owner: Implementation details
+   
+📄 KNOWN_ISSUES_DECISIONS_LOG.md
+   Purpose: Technical debt, workarounds, architectural decisions
+   Owner: Historical context
+```
+
+**Update Triggers**:
+- Phase/sprint change
+- New component added
+- Architecture refactoring
+- Bug discovery or resolution
+- Key decision made
+
+**Archive Rule**: Move to `archive/` folder when phase completes
+
+---
+
+### Tier 3: REFERENCE MATERIALS (Stable)
+**Document Count**: 2-6  
+**Update Frequency**: As-needed or annually  
+**Storage Location**: `reference/` subfolder
+
+```
+📄 TECHNOLOGY_BEST_PRACTICES.md
+   Purpose: Framework-specific guidelines (Unity/React/etc)
+   Owner: Technology ecosystem standards
+   
+📄 ACADEMIC_REQUIREMENTS.md
+   Purpose: University evaluation criteria, submission checklist
+   Owner: Educational context
+   
+📄 CODE_STYLE_GUIDE.md
+   Purpose: Naming conventions, formatting, patterns
+   Owner: Code consistency
+   
+📄 TESTING_PROTOCOLS.md
+   Purpose: Test strategy, quality gates, verification
+   Owner: Quality assurance
+   
+📄 PERFORMANCE_BENCHMARKS.md (optional)
+   Purpose: Target metrics, optimization strategies
+   Owner: Performance standards
+   
+📄 ACCESSIBILITY_STANDARDS.md (optional - web projects)
+   Purpose: WCAG compliance, inclusive design
+   Owner: User experience
+```
+
+**Update Triggers**:
+- Technology version upgrade
+- New best practice discovered
+- Academic requirement change
+- Style guide evolution
+
+**Archive Rule**: Keep most recent version only, archive outdated
+
+---
+
+## 📋 MASTER INDEX STRUCTURE
+
+**Required Document**: `PROJECT_MASTER_INDEX.md` (at root level)
+
+```markdown
+# [Project Name] - Master Index
+
+**Last Updated**: YYYY-MM-DD  
+**Document Count**: X/12  
+**Status**: [Active Development | Maintenance | Archived]
+
+## Quick Navigation
+
+### Core Standards
+- [Universal Development Standards](UNIVERSAL_LLM_DEVELOPMENT_STANDARDS.md)
+- [Project-Specific Standards](PROJECT_SPECIFIC_STANDARDS.md)
+
+### Active Context
+- [Current Phase Status](CURRENT_PHASE_STATUS.md) - Updated: YYYY-MM-DD
+- [Architecture Overview](ARCHITECTURE_OVERVIEW.md) - Updated: YYYY-MM-DD
+- [Component Reference](COMPONENT_API_REFERENCE.md) - Updated: YYYY-MM-DD
+- [Known Issues Log](KNOWN_ISSUES_DECISIONS_LOG.md) - Updated: YYYY-MM-DD
+
+### Reference Materials
+- [Technology Best Practices](reference/TECHNOLOGY_BEST_PRACTICES.md)
+- [Academic Requirements](reference/ACADEMIC_REQUIREMENTS.md)
+- [Code Style Guide](reference/CODE_STYLE_GUIDE.md)
+
+## Document Status Legend
+✅ Current | ⚠️ Needs Update | 🗄️ Archived | 🚧 In Progress
+```
+
+---
+
+## 🔄 UPDATE PROTOCOLS
+
+### Weekly Maintenance (Active Development)
+```
+1. Review CURRENT_PHASE_STATUS.md
+   → Update progress metrics
+   → Add new blockers
+   → Mark completed tasks
+
+2. Check KNOWN_ISSUES_DECISIONS_LOG.md
+   → Document new technical debt
+   → Record architectural decisions
+   → Update workaround status
+
+3. Update PROJECT_MASTER_INDEX.md dates
+```
+
+### Monthly Maintenance
+```
+1. Review Tier 2 documents for accuracy
+2. Archive completed phase documents
+3. Update COMPONENT_API_REFERENCE if APIs changed
+4. Verify ARCHITECTURE_OVERVIEW matches implementation
+```
+
+### Quarterly Maintenance
+```
+1. Review all Tier 3 reference materials
+2. Check for outdated technology best practices
+3. Update Core Standards if methodology evolved
+4. Consolidate redundant information
+5. Archive obsolete documents
+```
+
+---
+
+## 📦 ARCHIVING STRATEGY
+
+### When to Archive
+```
+✓ Phase/sprint completed (Tier 2 documents)
+✓ Technology version superseded (Tier 3)
+✓ Methodology replaced (Tier 1 - version, don't delete)
+✓ Information no longer relevant to active development
+```
+
+### Archive Structure
+```
+archive/
+├── 2025-Q1/
+│   ├── PHASE_1_STATUS.md
+│   ├── OLD_ARCHITECTURE_V1.md
+│   └── DEPRECATED_API_REFERENCE.md
+├── 2025-Q2/
+│   └── ...
+└── README.md (archive index)
+```
+
+### Archive Document Header
+```markdown
+# [Document Name] - ARCHIVED
+
+**Original Date**: YYYY-MM-DD  
+**Archived Date**: YYYY-MM-DD  
+**Reason**: Phase completed / Technology upgraded / Methodology replaced  
+**Superseded By**: [Link to new document if applicable]
+
+---
+
+[Original content preserved below]
+```
+
+---
+
+## ⚠️ WARNING SIGNS: KNOWLEDGE BASE NEEDS CLEANUP
+
+### Symptoms of Overload
+```
+🔴 Claude citing contradictory information
+🔴 Document count > 15
+🔴 Multiple docs covering same topic
+🔴 Claude asking for info that exists in docs
+🔴 Outdated docs (>6 months old) still in root
+```
+
+### Remediation Steps
+```
+1. Run Document Audit (use checklist below)
+2. Consolidate redundant information
+3. Archive outdated materials
+4. Update Master Index
+5. Verify Claude can access key info (test queries)
+```
+
+---
+
+## ✅ DOCUMENT AUDIT CHECKLIST
+
+### Monthly Audit Process
+```
+For each document, verify:
+
+[ ] Purpose clearly defined in header
+[ ] Last updated date < 90 days (Tier 2) or < 365 days (Tier 3)
+[ ] No redundancy with other documents
+[ ] Information still accurate
+[ ] Referenced by Master Index
+[ ] Structured with headers/lists (not wall-of-text)
+[ ] Cross-references use links (not duplicated content)
+
+Action items:
+[ ] Update if outdated
+[ ] Merge if redundant
+[ ] Archive if obsolete
+[ ] Version if methodology changed
+```
+
+---
+
+## 📊 QUALITY METRICS
+
+### Optimal State Indicators
+```
+✅ Document count: 5-12 (per project)
+✅ Tier 2 documents updated within last 2 weeks
+✅ No duplicate information across docs
+✅ Master Index reflects actual document state
+✅ Claude retrieves info accurately (95%+ success rate)
+✅ All docs have clear headers and structure
+✅ Cross-references used instead of duplication
+```
+
+### Performance Targets
+```
+Target: Claude answers project-specific questions without:
+  → Asking for information in documents
+  → Citing contradictory sources
+  → Hallucinating missing context
+  → Requiring mid-conversation context paste
+```
+
+---
+
+## 🔧 DOCUMENT TEMPLATES
+
+### Standard Document Header
+```markdown
+# [Document Name]
+
+**Version**: X.Y  
+**Last Updated**: YYYY-MM-DD  
+**Purpose**: [One-sentence clear purpose]  
+**Owner**: [Tier 1/2/3 classification]  
+**Dependencies**: [Links to related docs]
+
+---
+
+[Content with clear section headers]
+```
+
+### Versioning Convention
+```
+Major.Minor format:
+  Major: Methodology/architecture change (1.0 → 2.0)
+  Minor: Content update/refinement (1.0 → 1.1)
+
+Examples:
+  v1.0 - Initial creation
+  v1.1 - Added new section
+  v1.2 - Updated outdated info
+  v2.0 - Complete methodology overhaul
+```
+
+---
+
+## 🚀 IMPLEMENTATION ROADMAP
+
+### Week 1: Foundation Setup
+```
+1. Create PROJECT_MASTER_INDEX.md
+2. Add UNIVERSAL_LLM_DEVELOPMENT_STANDARDS.md
+3. Add PROJECT_SPECIFIC_STANDARDS.md
+4. Create folder structure (root, reference/, archive/)
+```
+
+### Week 2: Active Context
+```
+5. Create CURRENT_PHASE_STATUS.md
+6. Create ARCHITECTURE_OVERVIEW.md
+7. Create COMPONENT_API_REFERENCE.md
+8. Create KNOWN_ISSUES_DECISIONS_LOG.md
+```
+
+### Week 3: Reference Materials
+```
+9. Add technology-specific best practices
+10. Add academic requirements (if applicable)
+11. Add code style guide
+12. Test Claude's information retrieval
+```
+
+### Week 4: Validation & Refinement
+```
+13. Run full document audit
+14. Test Claude with project-specific queries
+15. Consolidate any redundancies discovered
+16. Establish weekly update routine
+```
+
+---
+
+## 📝 MAINTENANCE SCHEDULE
+
+### Daily (Active Development)
+```
+- Update CURRENT_PHASE_STATUS.md with progress
+- Log new issues in KNOWN_ISSUES_DECISIONS_LOG.md
+```
+
+### Weekly
+```
+- Review Tier 2 documents for accuracy
+- Update Master Index last-updated dates
+- Archive completed tasks/phases
+```
+
+### Monthly
+```
+- Full Tier 2 audit
+- Verify no redundancy across docs
+- Update COMPONENT_API_REFERENCE if needed
+```
+
+### Quarterly
+```
+- Full knowledge base audit (all tiers)
+- Technology best practices review
+- Core Standards version check
+- Archive structure cleanup
+```
+
+---
+
+## 🎯 SUCCESS CRITERIA
+
+```
+Your Claude Project knowledge base is optimized when:
+
+✅ 5-12 documents total
+✅ Zero redundant information
+✅ All active docs updated within 30 days
+✅ Clear hierarchical structure (Tiers 1-3)
+✅ Master Index accurate and current
+✅ Claude retrieves info with 95%+ accuracy
+✅ No conflicting information cited
+✅ Fast response times maintained
+✅ Minimal mid-conversation context needed
+```
+
+---
+
+**Implementation Priority**: High  
+**Maintenance Cost**: Low (10-15 min weekly)  
+**ROI**: Significant (Claude performance optimization + reduced confusion)
+
+---
+
+**END OF STORAGE & UPDATE STRATEGY v1.0**

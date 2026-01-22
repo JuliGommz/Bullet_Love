@@ -8,7 +8,7 @@
 * Date: 2025-01-20
 *
 * SETUP INSTRUCTIONS:
-* 1. Create MySQL database: bullethell_scores
+* 1. Create MySQL database: showroomtango_scores
 * 2. Create table (see database_setup.sql)
 * 3. Update $host, $username, $password below
 * 4. Upload to web server (or run on localhost with XAMPP)
@@ -20,7 +20,7 @@ header('Access-Control-Allow-Origin: *'); // Allow Unity to access
 
 // Database configuration
 $host = 'localhost';
-$dbname = 'bullethell_scores';
+$dbname = 'showroomtango_scores';
 $username = 'root'; // Change for production
 $password = '';     // Change for production
 

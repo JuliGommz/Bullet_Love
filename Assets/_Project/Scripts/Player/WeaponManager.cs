@@ -53,16 +53,23 @@ public class WeaponManager : NetworkBehaviour
         // Auto-find BulletPool if not assigned
         if (bulletPool == null)
         {
-            bulletPool = FindAnyObjectByType<BulletPool>();
+            // Find ALL bullet pools, then select player pool by name
+            BulletPool[] allPools = FindObjectsByType<BulletPool>(FindObjectsSortMode.None);
+
+            foreach (BulletPool pool in allPools)
+            {
+                if (pool.gameObject.name.Contains("Player"))
+                {
+                    bulletPool = pool;
+                    Debug.Log($"[WeaponManager] Player BulletPool auto-found: {pool.gameObject.name}");
+                    break;
+                }
+            }
 
             if (bulletPool == null)
             {
-                Debug.LogError("[WeaponManager] BulletPool not found in scene! Weapon system disabled.");
+                Debug.LogError("[WeaponManager] Player BulletPool not found in scene! Weapon system disabled.");
                 enabled = false;
-            }
-            else
-            {
-                Debug.Log("[WeaponManager] BulletPool auto-found in scene.");
             }
         }
     }

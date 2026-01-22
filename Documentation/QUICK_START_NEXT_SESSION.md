@@ -24,7 +24,7 @@ This contains EVERYTHING from the last session.
 Copy-paste this to Claude:
 
 ```
-I'm continuing work on Bullet_Love (Unity bullet-hell co-op game).
+I'm continuing work on Showroom Tango (Unity bullet-hell co-op game).
 
 Last session (v1.5) completed:
 - Fixed restart button (network proxy via PlayerController)

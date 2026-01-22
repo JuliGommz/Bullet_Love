@@ -36,6 +36,7 @@ public class EnemyShooter : NetworkBehaviour
     private Transform targetPlayer;
     private Rigidbody2D rb;
     private float lastFireTime;
+    private BulletPool bulletPool;
 
     // Spawn protection
     private bool isInitialized = false;
@@ -63,6 +64,17 @@ public class EnemyShooter : NetworkBehaviour
         isInitialized = false;
         FindNearestPlayer();
         PickNewPatrolTarget(); // Start with random patrol direction
+
+        // Get enemy bullet pool from spawner
+        EnemySpawner spawner = FindAnyObjectByType<EnemySpawner>();
+        if (spawner != null)
+        {
+            bulletPool = spawner.GetEnemyBulletPool();
+        }
+        else
+        {
+            Debug.LogWarning("[EnemyShooter] No EnemySpawner found - bullets will not be pooled");
+        }
     }
 
     void FixedUpdate()
@@ -214,15 +226,25 @@ public class EnemyShooter : NetworkBehaviour
             float bulletAngle = Mathf.Atan2(bulletDirection.y, bulletDirection.x) * Mathf.Rad2Deg;
             Quaternion bulletRotation = Quaternion.Euler(0, 0, bulletAngle - 90f);
 
-            // Instantiate and spawn bullet directly (enemies don't use pool)
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, bulletRotation);
-            ServerManager.Spawn(bullet);
+            GameObject bullet;
 
-            // Initialize bullet (no pool needed for enemy bullets)
+            // Use pool if available, otherwise fallback to instantiate
+            if (bulletPool != null)
+            {
+                bullet = bulletPool.GetBullet(transform.position, bulletRotation);
+            }
+            else
+            {
+                // Fallback: Instantiate and spawn directly (no pooling)
+                bullet = Instantiate(bulletPrefab, transform.position, bulletRotation);
+                ServerManager.Spawn(bullet);
+            }
+
+            // Initialize bullet
             Bullet bulletScript = bullet.GetComponent<Bullet>();
             if (bulletScript != null)
             {
-                bulletScript.Initialize(null); // No pool for enemy bullets
+                bulletScript.Initialize(bulletPool); // Pass pool reference (null if not using pool)
             }
 
             // Note: Bullet movement is handled by Bullet.cs FixedUpdate using transform.up

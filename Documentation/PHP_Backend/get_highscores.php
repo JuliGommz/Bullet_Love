@@ -14,7 +14,7 @@ header('Access-Control-Allow-Origin: *'); // Allow Unity to access
 
 // Database configuration
 $host = 'localhost';
-$dbname = 'bullethell_scores';
+$dbname = 'showroomtango_scores';
 $username = 'root'; // Change for production
 $password = '';     // Change for production
 

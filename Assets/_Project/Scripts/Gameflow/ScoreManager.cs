@@ -41,6 +41,7 @@ public class ScoreManager : NetworkBehaviour
 
     [Header("Synchronized Scores")]
     private readonly SyncVar<int> teamScore = new SyncVar<int>(0);
+    private readonly SyncVar<int> totalKills = new SyncVar<int>(0);
 
     // Events for HUD to subscribe to
     public delegate void ScoreChanged(int newScore);
@@ -75,6 +76,7 @@ public class ScoreManager : NetworkBehaviour
     {
         base.OnStartServer();
         teamScore.Value = 0;
+        totalKills.Value = 0;
     }
 
     /// <summary>
@@ -85,7 +87,9 @@ public class ScoreManager : NetworkBehaviour
     {
         int oldScore = teamScore.Value;
         teamScore.Value += killReward;
-        Debug.LogWarning($"[ScoreManager] KILL SCORE! {oldScore} + {killReward} = {teamScore.Value}");
+        totalKills.Value++;
+
+        Debug.LogWarning($"[ScoreManager] KILL SCORE! {oldScore} + {killReward} = {teamScore.Value} (Kill #{totalKills.Value})");
     }
 
     /// <summary>
@@ -121,11 +125,13 @@ public class ScoreManager : NetworkBehaviour
     public void ResetScore()
     {
         teamScore.Value = 0;
-        Debug.Log("[ScoreManager] Score reset to 0");
+        totalKills.Value = 0;
+        Debug.Log("[ScoreManager] Score and kills reset to 0");
     }
 
     // Public getters
     public int GetTeamScore() => teamScore.Value;
+    public int GetTotalKills() => totalKills.Value;
     public int GetKillReward() => killReward;
     public int GetWaveBonus() => waveClearBonus;
 }

@@ -1,13 +1,13 @@
-# Game Design Document: Bullet_Love
+# Game Design Document: Showroom Tango
 ## 2-Player Shared-Screen Co-op Bullet-Hell
 
-**Project**: Bullet_Love  
+**Project**: Showroom Tango  
 **Developer**: Julian (Juli)  
 **Course**: Game & Multimedia Design - PRG Module  
 **Institution**: SRH Hochschule  
 **Due Date**: 23.01.2026  
 **Technology**: Unity 6000.0.62f1 + FishNet 4.x  
-**Repository**: https://github.com/JuliGommz/Bullet_Love.git
+**Repository**: https://github.com/JuliGommz/Showroom Tango.git
 
 **Version**: 1.1  
 **Last Updated**: 26.12.2025  
@@ -545,7 +545,7 @@ Return to Main Menu
 **UI Layout**:
 ```
 ┌─────────────────────────────────────────┐
-│           Bullet_Love                    │
+│           Showroom Tango                    │
 │                                          │
 │  Enter Your Name:                        │
 │  [_________] (max 9 characters)         │
@@ -893,7 +893,7 @@ On Selection:
 
 **Main Menu** *(Updated)*:
 ```
-Title: "Bullet_Love" (large neon text)
+Title: "Showroom Tango" (large neon text)
 Subtitle: "Co-op Bullet-Hell" (smaller)
 
 Buttons (vertical layout):
@@ -1760,7 +1760,7 @@ Required contents:
 ### 14.2 README.md Mandatory Sections
 
 ```markdown
-# Bullet_Love - 2-Player Co-op Bullet-Hell
+# Showroom Tango - 2-Player Co-op Bullet-Hell
 
 ## Kurzbeschreibung
 [2-3 sentences about the game]

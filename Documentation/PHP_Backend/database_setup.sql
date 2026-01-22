@@ -7,15 +7,15 @@
 --
 -- INSTRUCTIONS:
 -- 1. Open phpMyAdmin (or MySQL command line)
--- 2. Create database: bullethell_scores
+-- 2. Create database: showroomtango_scores
 -- 3. Run this SQL script to create the table
 -- ====================================================================
 
-CREATE DATABASE IF NOT EXISTS bullethell_scores
+CREATE DATABASE IF NOT EXISTS showroomtango_scores
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
-USE bullethell_scores;
+USE showroomtango_scores;
 
 CREATE TABLE IF NOT EXISTS highscores (
     id INT AUTO_INCREMENT PRIMARY KEY,

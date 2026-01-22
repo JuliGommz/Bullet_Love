@@ -12,8 +12,7 @@
 * 
 * [HUMAN-AUTHORED]
 * - Health values (Chaser: 30 HP, Shooter: 20 HP)
-* - Death triggers collectible drop (every 3rd kill)
-* 
+*
 * [AI-ASSISTED]
 * - NetworkBehaviour implementation
 * - Server-authority damage pattern
@@ -35,8 +34,6 @@ public class EnemyHealth : NetworkBehaviour
     [SerializeField] private int scoreValue = 10;
 
     private readonly SyncVar<int> currentHealth = new SyncVar<int>();
-
-    private static int killCount = 0;
 
     // Spawn protection to prevent instant despawn during network initialization
     private bool isInitialized = false;
@@ -99,8 +96,6 @@ public class EnemyHealth : NetworkBehaviour
     [Server]
     private void Die(bool awardScore = true)
     {
-        killCount++;
-
         // Award score via ScoreManager (only if killed by player)
         if (awardScore && ScoreManager.Instance != null)
         {
@@ -113,11 +108,6 @@ public class EnemyHealth : NetworkBehaviour
         else
         {
             Debug.LogWarning("[EnemyHealth] ScoreManager not found - score not awarded");
-        }
-
-        if (killCount % 3 == 0)
-        {
-            Debug.Log($"[EnemyHealth] 3rd kill reached! Collectible should spawn at {transform.position}");
         }
 
         Debug.Log($"[EnemyHealth] Enemy died.");

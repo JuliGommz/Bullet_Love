@@ -36,6 +36,9 @@ public class EnemySpawner : NetworkBehaviour
     [SerializeField] private GameObject chaserPrefab;
     [SerializeField] private GameObject shooterPrefab;
 
+    [Header("Enemy Bullet Pool")]
+    [SerializeField] private BulletPool enemyBulletPool;
+
     [Header("Spawn Settings")]
     [SerializeField] private float spawnRadius = 18f;
     [SerializeField] private float minSpawnDistance = 5f;
@@ -162,4 +165,32 @@ public class EnemySpawner : NetworkBehaviour
 
     public int GetCurrentWave() => currentWave.Value;
     public bool IsWaveActive() => waveActive;
+
+    /// <summary>
+    /// Stop all wave spawning (called during restart)
+    /// </summary>
+    [Server]
+    public void StopSpawning()
+    {
+        StopAllCoroutines();
+        waveActive = false;
+        Debug.Log("[EnemySpawner] All spawning stopped");
+    }
+
+    /// <summary>
+    /// Restart wave sequence (called after restart cleanup)
+    /// </summary>
+    [Server]
+    public void RestartWaves()
+    {
+        currentWave.Value = 1;
+        waveActive = false;
+        StartCoroutine(WaveSequence());
+        Debug.Log("[EnemySpawner] Wave sequence restarted");
+    }
+
+    /// <summary>
+    /// Get enemy bullet pool for shooter enemies
+    /// </summary>
+    public BulletPool GetEnemyBulletPool() => enemyBulletPool;
 }

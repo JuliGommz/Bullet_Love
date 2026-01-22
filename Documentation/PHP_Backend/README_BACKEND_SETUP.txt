@@ -17,24 +17,24 @@ OPTION 1: LOCAL XAMPP (Recommended for Testing)
 3. Create Database
    - Open browser: http://localhost/phpmyadmin
    - Click "New" to create database
-   - Name: bullethell_scores
+   - Name: showroomtango_scores
    - Run: database_setup.sql (copy-paste SQL into phpMyAdmin)
 
 4. Copy PHP Files
    - Navigate to: C:/xampp/htdocs/
-   - Create folder: bullethell
+   - Create folder: showroomtango
    - Copy files:
      * submit_score.php
      * get_highscores.php
 
 5. Test Backend
-   - Open browser: http://localhost/bullethell/get_highscores.php
+   - Open browser: http://localhost/showroomtango/get_highscores.php
    - Should show JSON array with test data
 
 6. Configure Unity
    - HighscoreManager Inspector:
-     * submitScoreURL: http://localhost/bullethell/submit_score.php
-     * getHighscoresURL: http://localhost/bullethell/get_highscores.php
+     * submitScoreURL: http://localhost/showroomtango/submit_score.php
+     * getHighscoresURL: http://localhost/showroomtango/get_highscores.php
      * useJSONFallback: false
 
 ==================================================
@@ -60,7 +60,7 @@ TESTING
 2. Score some points
 3. Trigger Game Over or Victory
 4. Check:
-   - XAMPP: http://localhost/bullethell/get_highscores.php
+   - XAMPP: http://localhost/showroomtango/get_highscores.php
    - OR JSON: Check persistentDataPath folder
    - Console should show "[HighscoreManager] Score submitted: ..."
 
@@ -74,7 +74,7 @@ Error: "Database error: Connection refused"
 Error: "Access denied for user 'root'"
 → Edit PHP files - update $username and $password
 
-Error: "Table 'bullethell_scores.highscores' doesn't exist"
+Error: "Table 'showroomtango_scores.highscores' doesn't exist"
 → Run database_setup.sql in phpMyAdmin
 
 Error: "Failed to connect to localhost"
@@ -88,7 +88,7 @@ For online hosting:
 1. Upload PHP files to web server
 2. Create MySQL database on hosting
 3. Update PHP $host, $username, $password
-4. Update Unity URLs to: http://yoursite.com/bullethell/...
+4. Update Unity URLs to: http://yoursite.com/showroomtango/...
 
 ⚠️ SECURITY NOTE for production:
 - Change MySQL password from empty string

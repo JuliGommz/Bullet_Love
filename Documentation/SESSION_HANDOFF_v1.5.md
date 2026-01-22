@@ -1,4 +1,4 @@
-# Session Handoff Document - Bullet_Love v1.5
+# Session Handoff Document - Showroom Tango v1.5
 
 **Date**: January 21, 2026
 **Session Type**: Expert Review & Critical Fixes

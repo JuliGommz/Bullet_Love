@@ -1,4 +1,4 @@
-# Bullet_Love - 2-Player Cooperative Bullet-Hell
+# Showroom Tango - 2-Player Cooperative Bullet-Hell
 
 **Developer:** Julian Gomez
 **Course:** PRG - Game & Multimedia Design, SRH Hochschule Heidelberg
@@ -9,7 +9,7 @@
 
 ## Kurzbeschreibung
 
-Bullet_Love ist ein kooperativer Top-Down Bullet-Hell-Shooter für 2 Spieler. Beide Spieler kämpfen gemeinsam gegen 5 Wellen von Gegnern auf einem geteilten Bildschirm. Das Spiel features automatisches Zielsystem mit bis zu 3 Waffen, Neon-Retrofuturistik-Ästhetik, und netzwerkbasiertes Multiplayer über FishNet.
+Showroom Tango ist ein kooperativer Top-Down Bullet-Hell-Shooter für 2 Spieler. Beide Spieler kämpfen gemeinsam gegen 5 Wellen von Gegnern auf einem geteilten Bildschirm. Das Spiel features automatisches Zielsystem mit bis zu 3 Waffen, Neon-Retrofuturistik-Ästhetik, und netzwerkbasiertes Multiplayer über FishNet.
 
 ---
 

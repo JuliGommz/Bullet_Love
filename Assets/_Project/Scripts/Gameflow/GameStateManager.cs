@@ -179,7 +179,7 @@ public class GameStateManager : NetworkBehaviour
         EnemySpawner spawner = FindAnyObjectByType<EnemySpawner>();
         if (spawner != null)
         {
-            StopAllCoroutines(); // Stop wave sequences
+            spawner.StopSpawning(); // Properly stop spawner's coroutines
         }
 
         Debug.Log("[GameStateManager] Step 2: Cleaning up game objects");
@@ -238,6 +238,12 @@ public class GameStateManager : NetworkBehaviour
         yield return new WaitForSeconds(0.5f);
 
         Debug.Log("[GameStateManager] Step 3: Reset game state and restart");
+
+        // Restart wave spawning
+        if (spawner != null)
+        {
+            spawner.RestartWaves();
+        }
 
         // CRITICAL: Reset state to Lobby, which will trigger game start after delay
         currentState.Value = GameState.Lobby;

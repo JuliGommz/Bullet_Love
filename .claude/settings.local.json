@@ -10,7 +10,12 @@
       "Bash(Sort-Object LastWriteTime -Descending)",
       "Bash(Format-Table -AutoSize)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git fsck:*)",
+      "Bash(vssadmin list shadows:*)",
+      "Bash(wc:*)",
+      "Bash(git fetch:*)"
     ]
   }
 }

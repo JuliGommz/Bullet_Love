@@ -182,13 +182,13 @@ public class EnemyChaser : NetworkBehaviour
                 player.TakeDamageServerRpc(collisionDamage);
             }
 
-            // Kamikaze behavior - die on collision (no score awarded)
+            // Kamikaze behavior - die on collision (no individual score, but team score awarded)
             if (diesOnCollision)
             {
                 EnemyHealth health = GetComponent<EnemyHealth>();
                 if (health != null)
                 {
-                    health.TakeDamage(int.MaxValue, awardScore: false); // Suicide - no score
+                    health.TakeDamage(int.MaxValue, attackerPlayer: null); // Suicide - team score only
                 }
             }
         }

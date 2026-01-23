@@ -43,15 +43,22 @@ public class Bullet : NetworkBehaviour
     private BulletPool ownerPool;
     private Vector3 spawnPosition;
     private Vector3 movementDirection; // Store initial direction for straight movement
+    private GameObject ownerPlayer; // Track which player fired this bullet (for score attribution)
 
-    public void Initialize(BulletPool pool)
+    public void Initialize(BulletPool pool, GameObject player = null)
     {
         ownerPool = pool;
+        ownerPlayer = player; // Store player reference for score tracking
         lifetimeTimer = 0f;
         spawnPosition = transform.position;
         // Capture initial direction when bullet spawns (before any rotation)
         movementDirection = transform.up;
-    } 
+    }
+
+    /// <summary>
+    /// Get the player who owns this bullet (for score attribution)
+    /// </summary>
+    public GameObject GetOwnerPlayer() => ownerPlayer; 
 
     void FixedUpdate()
     {
@@ -108,8 +115,8 @@ public class Bullet : NetworkBehaviour
             EnemyHealth enemyHealth = collision.GetComponent<EnemyHealth>();
             if (enemyHealth != null)
             {
-                enemyHealth.TakeDamage(damage);
-                Debug.Log($"[Bullet] Player bullet hit enemy {collision.gameObject.name} for {damage} damage");
+                enemyHealth.TakeDamage(damage, ownerPlayer); // Pass owner for score attribution
+                Debug.Log($"[Bullet] Player bullet (owner: {ownerPlayer?.name}) hit enemy {collision.gameObject.name} for {damage} damage");
             }
             ReturnToPool();
             return;

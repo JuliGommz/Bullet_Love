@@ -65,22 +65,23 @@ public class EnemySpawner : NetworkBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-        for (int wave = 0; wave < maxWaves; wave++)
+        for (int wave = 1; wave <= maxWaves; wave++)
         {
-            currentWave.Value = wave + 1;
+            currentWave.Value = wave;
             Debug.Log($"[EnemySpawner] Starting Wave {currentWave.Value}/{maxWaves}");
 
             yield return StartCoroutine(SpawnWave(currentWave.Value));
 
             Debug.Log($"[EnemySpawner] Wave {currentWave.Value} complete");
 
-            if (currentWave.Value < maxWaves)
+            // Delay before next wave (but not after final wave)
+            if (wave < maxWaves)
             {
                 yield return new WaitForSeconds(5f);
             }
         }
 
-        Debug.Log("[EnemySpawner] All waves complete - VICTORY!");
+        Debug.Log("[EnemySpawner] All waves complete - Wave counter stays at 3");
     }
 
     private IEnumerator SpawnWave(int wave)

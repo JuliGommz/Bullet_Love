@@ -43,9 +43,15 @@ public class ScoreManager : NetworkBehaviour
     private readonly SyncVar<int> teamScore = new SyncVar<int>(0);
     private readonly SyncVar<int> totalKills = new SyncVar<int>(0);
 
+    // Individual player scores (tracked by NetworkObject ID)
+    private readonly SyncDictionary<int, int> playerScores = new SyncDictionary<int, int>();
+
     // Events for HUD to subscribe to
     public delegate void ScoreChanged(int newScore);
     public event ScoreChanged OnScoreChanged;
+
+    public delegate void PlayerScoreChanged(GameObject player, int newScore);
+    public event PlayerScoreChanged OnPlayerScoreChanged;
 
     void Awake()
     {
@@ -83,11 +89,32 @@ public class ScoreManager : NetworkBehaviour
     /// Called by enemies when they die to award points
     /// </summary>
     [Server]
-    public void AddKillScore()
+    public void AddKillScore(GameObject killerPlayer = null)
     {
         int oldScore = teamScore.Value;
         teamScore.Value += killReward;
         totalKills.Value++;
+
+        // Award individual score if killer specified
+        if (killerPlayer != null)
+        {
+            FishNet.Object.NetworkObject netObj = killerPlayer.GetComponent<FishNet.Object.NetworkObject>();
+            if (netObj != null)
+            {
+                int playerId = netObj.ObjectId;
+
+                if (!playerScores.ContainsKey(playerId))
+                {
+                    playerScores.Add(playerId, 0);
+                }
+
+                playerScores[playerId] += killReward;
+                Debug.LogWarning($"[ScoreManager] Player {killerPlayer.name} (ID: {playerId}) scored kill! Individual: {playerScores[playerId]}, Team: {teamScore.Value}");
+
+                // Trigger event for HUD update
+                OnPlayerScoreChanged?.Invoke(killerPlayer, playerScores[playerId]);
+            }
+        }
 
         Debug.LogWarning($"[ScoreManager] KILL SCORE! {oldScore} + {killReward} = {teamScore.Value} (Kill #{totalKills.Value})");
     }
@@ -126,7 +153,8 @@ public class ScoreManager : NetworkBehaviour
     {
         teamScore.Value = 0;
         totalKills.Value = 0;
-        Debug.Log("[ScoreManager] Score and kills reset to 0");
+        playerScores.Clear();
+        Debug.Log("[ScoreManager] Score, kills, and individual scores reset to 0");
     }
 
     // Public getters
@@ -134,4 +162,18 @@ public class ScoreManager : NetworkBehaviour
     public int GetTotalKills() => totalKills.Value;
     public int GetKillReward() => killReward;
     public int GetWaveBonus() => waveClearBonus;
+
+    /// <summary>
+    /// Get individual score for a specific player
+    /// </summary>
+    public int GetPlayerScore(GameObject player)
+    {
+        if (player == null) return 0;
+
+        FishNet.Object.NetworkObject netObj = player.GetComponent<FishNet.Object.NetworkObject>();
+        if (netObj == null) return 0;
+
+        int playerId = netObj.ObjectId;
+        return playerScores.ContainsKey(playerId) ? playerScores[playerId] : 0;
+    }
 }

@@ -39,10 +39,12 @@ public class HUDManager : MonoBehaviour
     [Header("Player 1 HUD")]
     [SerializeField] private Slider player1HPBar;
     [SerializeField] private TextMeshProUGUI player1NameText;
+    [SerializeField] private TextMeshProUGUI player1ScoreText;
 
     [Header("Player 2 HUD")]
     [SerializeField] private Slider player2HPBar;
     [SerializeField] private TextMeshProUGUI player2NameText;
+    [SerializeField] private TextMeshProUGUI player2ScoreText;
 
     [Header("Game Over/Victory")]
     [SerializeField] private GameObject gameOverPanel;
@@ -109,21 +111,38 @@ public class HUDManager : MonoBehaviour
 
         if (players.Length >= 1)
         {
-            UpdateSinglePlayerHP(players[0], player1HPBar, player1NameText);
+            UpdateSinglePlayerHP(players[0], player1HPBar, player1NameText, player1ScoreText);
+        }
+        else
+        {
+            // No player 1, clear display
+            if (player1ScoreText != null) player1ScoreText.text = "Score: 0";
         }
 
         if (players.Length >= 2)
         {
-            UpdateSinglePlayerHP(players[1], player2HPBar, player2NameText);
+            UpdateSinglePlayerHP(players[1], player2HPBar, player2NameText, player2ScoreText);
+        }
+        else
+        {
+            // No player 2, clear display
+            if (player2ScoreText != null) player2ScoreText.text = "Score: 0";
         }
     }
 
-    private void UpdateSinglePlayerHP(GameObject playerObj, Slider hpBar, TextMeshProUGUI nameText)
+    private void UpdateSinglePlayerHP(GameObject playerObj, Slider hpBar, TextMeshProUGUI nameText, TextMeshProUGUI scoreText)
     {
         if (hpBar == null) return;
 
         PlayerHealth health = playerObj.GetComponent<PlayerHealth>();
         PlayerController controller = playerObj.GetComponent<PlayerController>();
+
+        // Update individual score
+        if (scoreText != null && ScoreManager.Instance != null)
+        {
+            int individualScore = ScoreManager.Instance.GetPlayerScore(playerObj);
+            scoreText.text = $"Score: {individualScore}";
+        }
 
         if (health != null)
         {
@@ -196,19 +215,15 @@ public class HUDManager : MonoBehaviour
     /// </summary>
     public void OnRestartButtonPressed()
     {
-        // Find local player's NetworkObject to make the ServerRpc call
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-
-        foreach (GameObject player in players)
+        // Direct call to GameStateManager (works even when players are dead)
+        if (GameStateManager.Instance != null)
         {
-            PlayerController controller = player.GetComponent<PlayerController>();
-            if (controller != null && controller.IsOwner)
-            {
-                controller.RequestGameRestartServerRpc();
-                return;
-            }
+            GameStateManager.Instance.RequestRestartServerRpc();
+            Debug.Log("[HUDManager] Restart requested via GameStateManager");
         }
-
-        Debug.LogWarning("[HUDManager] Could not find local player to request restart");
+        else
+        {
+            Debug.LogWarning("[HUDManager] GameStateManager not found - cannot restart");
+        }
     }
 }

@@ -182,7 +182,7 @@ public class WeaponManager : NetworkBehaviour
             Bullet bulletScript = bullet.GetComponent<Bullet>();
             if (bulletScript != null)
             {
-                bulletScript.Initialize(bulletPool);
+                bulletScript.Initialize(bulletPool, gameObject); // Pass this player as owner
             }
         }
     }

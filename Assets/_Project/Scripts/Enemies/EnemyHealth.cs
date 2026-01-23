@@ -73,7 +73,7 @@ public class EnemyHealth : NetworkBehaviour
     }
 
     [Server]
-    public void TakeDamage(int damage, bool awardScore = true)
+    public void TakeDamage(int damage, GameObject attackerPlayer = null)
     {
         // Ignore damage during spawn protection
         if (!isInitialized)
@@ -84,26 +84,31 @@ public class EnemyHealth : NetworkBehaviour
 
         int oldHealth = currentHealth.Value;
         currentHealth.Value -= damage;
-        Debug.Log($"[EnemyHealth] {gameObject.name} took {damage} damage: {oldHealth} -> {currentHealth.Value} HP");
+        Debug.Log($"[EnemyHealth] {gameObject.name} took {damage} damage: {oldHealth} -> {currentHealth.Value} HP (attacker: {attackerPlayer?.name})");
 
         if (currentHealth.Value <= 0)
         {
-            Debug.Log($"[EnemyHealth] {gameObject.name} died (awardScore={awardScore})");
-            Die(awardScore);
+            Debug.Log($"[EnemyHealth] {gameObject.name} died (killer: {attackerPlayer?.name})");
+            Die(attackerPlayer);
         }
     }
 
     [Server]
-    private void Die(bool awardScore = true)
+    private void Die(GameObject killerPlayer = null)
     {
-        // Award score via ScoreManager (only if killed by player)
-        if (awardScore && ScoreManager.Instance != null)
+        // Award score via ScoreManager (attribute to specific player if provided)
+        if (ScoreManager.Instance != null)
         {
-            ScoreManager.Instance.AddKillScore();
-        }
-        else if (!awardScore)
-        {
-            Debug.Log("[EnemyHealth] Suicide death - no score awarded");
+            if (killerPlayer != null)
+            {
+                ScoreManager.Instance.AddKillScore(killerPlayer);
+            }
+            else
+            {
+                // Kamikaze/suicide death - still award team score but no individual credit
+                ScoreManager.Instance.AddKillScore(null);
+                Debug.Log("[EnemyHealth] Non-player kill (kamikaze) - team score only");
+            }
         }
         else
         {

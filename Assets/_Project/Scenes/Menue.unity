@@ -382,7 +382,7 @@ MonoBehaviour:
   playerA: {fileID: 800627180}
   playerB: {fileID: 949970519}
   displayImage: {fileID: 317182369}
-  mainClip: {fileID: 32900000, guid: c0bc3d75abb790a4daed78052551829e, type: 3}
+  mainClip: {fileID: 32900000, guid: ba03d8a1eee08ba4f83d353fa42b86cb, type: 3}
   loopClip: {fileID: 32900000, guid: ccbca1bd097b6b942bdfd30357e70b6b, type: 3}
   preloadOffset: 0.1
   clipStartOffset: 0
@@ -401,6 +401,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  enableDebugLogs: 1
 --- !u!1 &1280287334
 GameObject:
   m_ObjectHideFlags: 0
@@ -1092,9 +1093,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2087515730}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: MenuAudioController, Assembly-CSharp
-        m_MethodName: OnGameStart
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1322,7 +1323,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2117909174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1448,7 +1449,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1840309534}
-  - {fileID: 1435470305}
   - {fileID: 1565888141}
+  - {fileID: 1435470305}
   - {fileID: 2117909179}
   - {fileID: 1754120391}

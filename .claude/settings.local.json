@@ -15,7 +15,11 @@
       "Bash(git fsck:*)",
       "Bash(vssadmin list shadows:*)",
       "Bash(wc:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git restore:*)",
+      "Bash(reg query \"HKCU\\\\Software\\\\Unity Technologies\\\\Unity Editor 6.x\" /s)",
+      "Bash(reg query \"HKCU\\\\SOFTWARE\\\\Unity Technologies\\\\Unity Editor 6.x\")",
+      "Bash(reg query \"HKCU\\\\SOFTWARE\\\\Unity Technologies\")"
     ]
   }
 }

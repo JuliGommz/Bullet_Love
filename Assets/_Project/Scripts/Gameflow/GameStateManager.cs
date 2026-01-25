@@ -173,82 +173,27 @@ public class GameStateManager : NetworkBehaviour
     [Server]
     private System.Collections.IEnumerator RestartGameSequence()
     {
-        Debug.Log("[GameStateManager] Step 1: Stop enemy spawner");
+        Debug.Log("[GameStateManager] ━━━ RESTART SEQUENCE START ━━━");
 
-        // Step 1: Stop the spawner to prevent new enemies
-        EnemySpawner spawner = FindAnyObjectByType<EnemySpawner>();
-        if (spawner != null)
-        {
-            spawner.StopSpawning(); // Properly stop spawner's coroutines
-        }
-
-        Debug.Log("[GameStateManager] Step 2: Cleaning up game objects");
-
-        // Step 2: Clean up all networked game objects
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        Debug.Log($"[GameStateManager] Despawning {enemies.Length} enemies");
-        foreach (GameObject enemy in enemies)
-        {
-            if (enemy != null)
-            {
-                ServerManager.Despawn(enemy);
-            }
-        }
-
-        GameObject[] bullets = GameObject.FindGameObjectsWithTag("Bullet");
-        Debug.Log($"[GameStateManager] Despawning {bullets.Length} bullets");
-        foreach (GameObject bullet in bullets)
-        {
-            if (bullet != null)
-            {
-                ServerManager.Despawn(bullet);
-            }
-        }
-
-        // Step 3: Reset player health and position
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        Debug.Log($"[GameStateManager] Resetting {players.Length} players");
-
-        // Find spawn points
-        GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("Respawn");
-
-        for (int i = 0; i < players.Length; i++)
-        {
-            PlayerHealth health = players[i].GetComponent<PlayerHealth>();
-            if (health != null)
-            {
-                health.ResetHealthServerRpc();
-            }
-
-            // Reset position to spawn point
-            if (i < spawnPoints.Length && spawnPoints[i] != null)
-            {
-                players[i].transform.position = spawnPoints[i].transform.position;
-                Debug.Log($"[GameStateManager] Moved {players[i].name} to spawn point {i}");
-            }
-        }
-
-        // Step 4: Reset score
+        // Step 1: Reset score
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.ResetScore();
+            Debug.Log("[GameStateManager] ✅ Score reset");
         }
 
-        // Wait for cleanup
-        yield return new WaitForSeconds(0.5f);
+        // Step 2: Load Lobby scene (cleanup happens automatically)
+        Debug.Log("[GameStateManager] 🔄 Loading Lobby scene...");
 
-        Debug.Log("[GameStateManager] Step 3: Reset game state and restart");
-
-        // Restart wave spawning
-        if (spawner != null)
-        {
-            spawner.RestartWaves();
-        }
-
-        // CRITICAL: Reset state to Lobby, which will trigger game start after delay
+        // Reset state before scene load
         currentState.Value = GameState.Lobby;
 
-        Debug.Log("[GameStateManager] Restart complete - game will auto-start in 3 seconds");
+        // Load Lobby scene (all Game scene objects destroyed automatically)
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+
+        Debug.Log("[GameStateManager] ✅ Lobby scene loading - players can customize and ready up");
+
+        yield break;
     }
 
     // Public getters

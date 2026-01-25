@@ -1,54 +1,46 @@
-fix: Critical network and AI fixes - restart button, enemy targeting, camera clarification
+feat: implement lobby system with player customization (v2.2 - code complete)
 
-## Critical Fixes
+# Core Changes
+- Add complete lobby system with 2-player setup panels
+- Implement name/color customization with network sync
+- Add ready-up system with 3-second countdown
+- Fix WaveTransitionUI detection logic (critical bug)
+- Fix HighscoreManager DontDestroyOnLoad warning
+- Rename SceneManager.cs to MenuManager.cs (namespace fix)
+- Update scene flow: Menu → Lobby → Game → Restart → Lobby
 
-### 1. Restart Button Network Fix
-- **Problem**: HUDManager (MonoBehaviour) couldn't call ServerRpc methods directly
-- **Solution**: Implemented proxy pattern via PlayerController ServerRpc
-- **Implementation**:
-  - HUDManager.OnRestartButtonPressed() finds local player's NetworkObject
-  - Forwards restart request through PlayerController.RequestGameRestartServerRpc()
-  - Uses RequireOwnership = false for proper network authorization
-- **Files Modified**:
-  - Assets/_Project/Scripts/UI/HUDManager.cs (lines 191-207)
-  - Assets/_Project/Scripts/Player/PlayerController.cs (lines 255-262)
+# New Scripts (Production-Ready)
+- LobbyManager.cs: Server-authority lobby controller with FishNet
+- PlayerSetupUI.cs: Individual player panel (name, 6 colors, ready button)
+- LobbyUI.cs: Main lobby orchestrator with status/countdown display
+- MenuManager.cs: Renamed from SceneManager.cs to avoid namespace collision
 
-### 2. Enemy Targeting AI Enhancement
-- **Problem**: Enemies locked onto initial target, never re-evaluated if player died
-- **Solution**: Periodic re-targeting with dead player detection
-- **Implementation**:
-  - Added TARGET_UPDATE_INTERVAL = 0.5s constant
-  - Timer-based FindNearestPlayer() re-evaluation
-  - Explicit IsDead() check forces re-targeting when current target dies
-  - Performance optimization: Reduced FindGameObjectsWithTag from 50/sec to 2/sec
-- **Files Modified**:
-  - Assets/_Project/Scripts/Enemies/EnemyChaser.cs (lines 38-87)
+# Critical Fixes
+- WaveTransitionUI.cs: Complete rewrite with edge-detection for wave transitions
+  (Old logic could never detect wave completion - countdown never appeared)
+- HighscoreManager.cs: Add transform.SetParent(null) before DontDestroyOnLoad
+- GameStateManager.cs: Update restart flow to load Lobby scene
+- HUDManager.cs: Add diagnostic logging for restart button
 
-### 3. Camera Behavior Clarification
-- **Analysis**: Camera following player is NOT a bug - working as intended
-- **Multiplayer Mode**: Online co-op (each player on separate PC)
-- **Expected Behavior**: Each player sees their own camera following them (owner-only)
-- **Z-Position**: Cinemachine CameraDistance = 10 (automatic adjustment for orthographic view)
-- **No Code Changes**: System working correctly for online multiplayer architecture
+# Scene Changes
+- Add Lobby.unity (partial - 25% complete, Unity setup in progress)
+- Delete SampleScene.unity (unused)
+- Update EditorBuildSettings.asset with Lobby scene
 
-## Expert Review Process
-- Applied V-Rule senior Unity developer review methodology
-- Analyzed all identified issues with 0.1% expert-level scrutiny
-- Re-evaluated initial diagnoses for completeness and accuracy
-- Identified performance optimizations and architectural improvements
+# Documentation
++ Add Documentation/LOBBY_SYSTEM_SETUP.md (complete Unity setup guide)
++ Add Documentation/SESSION_PROGRESS_v2.2.md (migration notes)
 
-## Documentation Updates
-- Updated GDD to v1.5 with detailed fix documentation
-- Added "Known Issues & Recent Fixes" section (9.1)
-- Documented proxy pattern and re-targeting algorithms
-- Clarified multiplayer architecture (online vs local co-op)
-- Updated version history with current session changes
+# Known Limitations
+- Lobby scene Unity setup incomplete (Player2_Panel, Status/Countdown panels missing)
+- Inspector references not yet assigned
+- System non-functional until Unity scene completed (estimated 2-3h work)
 
-## Testing Recommendations
-1. **Restart Button**: Test Game Over/Victory restart functionality
-2. **Enemy AI**: Verify enemies switch targets when player dies
-3. **Camera**: Confirm each player sees independent camera view
+# Technical Details
+- FishNet NetworkBehaviour with SyncDictionary<int, PlayerLobbyData>
+- Server RPCs for player registration, name/color sync, ready toggle
+- Event-driven UI updates (OnLobbyStateChanged, OnCountdownTick)
+- Character limit (8 chars) enforced via code, not Inspector
+- Color presets: Magenta (#AA00C8), Cyan, Yellow, Green, Red, Blue (#0080FF)
 
----
-
-**Co-Authored-By**: Claude Sonnet 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>

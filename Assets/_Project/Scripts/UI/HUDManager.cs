@@ -50,9 +50,12 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject victoryPanel;
     [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private UnityEngine.UI.Button restartButton; // For diagnostic validation
 
     void Start()
     {
+        Debug.Log("[HUDManager] Starting initialization...");
+
         // Subscribe to managers
         if (ScoreManager.Instance != null)
         {
@@ -69,9 +72,36 @@ public class HUDManager : MonoBehaviour
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (victoryPanel != null) victoryPanel.SetActive(false);
 
+        // Validate restart button configuration
+        if (restartButton != null)
+        {
+            int listenerCount = restartButton.onClick.GetPersistentEventCount();
+            Debug.Log($"[HUDManager] ✅ Restart button found with {listenerCount} onClick listeners");
+
+            if (listenerCount == 0)
+            {
+                Debug.LogWarning("[HUDManager] ⚠️ Restart button has ZERO onClick listeners! Configure in Inspector!");
+            }
+            else
+            {
+                for (int i = 0; i < listenerCount; i++)
+                {
+                    string methodName = restartButton.onClick.GetPersistentMethodName(i);
+                    Object target = restartButton.onClick.GetPersistentTarget(i);
+                    Debug.Log($"[HUDManager] Listener {i}: {target?.name}.{methodName}()");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[HUDManager] ⚠️ Restart button reference not assigned in Inspector!");
+        }
+
         // Start updating player HP
         InvokeRepeating(nameof(UpdatePlayerHP), 0.5f, 0.2f); // Update 5x per second
         InvokeRepeating(nameof(UpdateWave), 1f, 1f); // Update every second
+
+        Debug.Log("[HUDManager] Initialization complete");
     }
 
     void OnDestroy()
@@ -215,15 +245,34 @@ public class HUDManager : MonoBehaviour
     /// </summary>
     public void OnRestartButtonPressed()
     {
+        Debug.Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Debug.Log("[HUDManager] 🔴 RESTART BUTTON CLICKED!");
+        Debug.Log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
         // Direct call to GameStateManager (works even when players are dead)
         if (GameStateManager.Instance != null)
         {
+            Debug.Log($"[HUDManager] ✅ GameStateManager found: {GameStateManager.Instance.name}");
+            Debug.Log("[HUDManager] 📡 Calling RequestRestartServerRpc()...");
+
             GameStateManager.Instance.RequestRestartServerRpc();
-            Debug.Log("[HUDManager] Restart requested via GameStateManager");
+
+            Debug.Log("[HUDManager] ✅ ServerRpc call completed - waiting for server response");
         }
         else
         {
-            Debug.LogWarning("[HUDManager] GameStateManager not found - cannot restart");
+            Debug.LogError("[HUDManager] ❌ GameStateManager.Instance is NULL! Cannot restart!");
+
+            // Attempt to find it manually
+            GameStateManager found = FindAnyObjectByType<GameStateManager>();
+            if (found != null)
+            {
+                Debug.LogWarning($"[HUDManager] ⚠️ Found GameStateManager manually: {found.name}, but Instance was null!");
+            }
+            else
+            {
+                Debug.LogError("[HUDManager] ❌ GameStateManager doesn't exist in scene at all!");
+            }
         }
     }
 }

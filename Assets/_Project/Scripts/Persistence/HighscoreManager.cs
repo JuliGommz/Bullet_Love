@@ -67,6 +67,7 @@ public class HighscoreManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null); // Ensure root-level GameObject
             DontDestroyOnLoad(gameObject);
         }
         else

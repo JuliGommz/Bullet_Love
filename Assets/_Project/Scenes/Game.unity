@@ -892,11 +892,11 @@ Transform:
   m_GameObject: {fileID: 296856746}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4507.6484, y: -1523.3726, z: -2.3532753}
+  m_LocalPosition: {x: -3628, y: -1113, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1968935620}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &365203916
 GameObject:
@@ -2043,6 +2043,7 @@ GameObject:
   - component: {fileID: 1118706636}
   - component: {fileID: 1118706638}
   - component: {fileID: 1118706637}
+  - component: {fileID: 1118706639}
   m_Layer: 5
   m_Name: WaveCountdownPanel
   m_TagString: Untagged
@@ -2083,7 +2084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2108,6 +2109,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1118706635}
   m_CullTransparentMesh: 1
+--- !u!114 &1118706639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1118706635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e817ce3a60d6a4db66e54f20288b73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countdownPanel: {fileID: 1118706635}
+  countdownText: {fileID: 1247006703}
+  countdownDuration: 3
+  textColor: {r: 0.667, g: 0, b: 0.784, a: 1}
 --- !u!1 &1119851186
 GameObject:
   m_ObjectHideFlags: 0
@@ -2794,7 +2811,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 450735054}
-  m_Father: {fileID: 1968935620}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3038,7 +3055,6 @@ GameObject:
   - component: {fileID: 1247006701}
   - component: {fileID: 1247006704}
   - component: {fileID: 1247006703}
-  - component: {fileID: 1247006702}
   m_Layer: 5
   m_Name: CountdownText
   m_TagString: Untagged
@@ -3063,24 +3079,8 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 150}
+  m_SizeDelta: {x: 700, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1247006702
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1247006700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77e817ce3a60d6a4db66e54f20288b73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  countdownPanel: {fileID: 1118706635}
-  countdownText: {fileID: 1247006703}
-  countdownDuration: 3
-  textColor: {r: 0.667, g: 0, b: 0.784, a: 1}
 --- !u!114 &1247006703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3101,17 +3101,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: NEXT WAVE IN 3...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
+  m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4294347047
+  m_fontColor: {r: 0.15194845, g: 0.5376182, b: 0.9652173, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3128,15 +3128,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 60.7
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -3144,7 +3144,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -3443,7 +3443,7 @@ GameObject:
   - component: {fileID: 1385707683}
   - component: {fileID: 1385707684}
   m_Layer: 5
-  m_Name: HUD_Canvas
+  m_Name: --- HUD_Canvas ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3560,6 +3560,7 @@ MonoBehaviour:
   gameOverPanel: {fileID: 132342879}
   victoryPanel: {fileID: 1641000736}
   finalScoreText: {fileID: 2072022871}
+  restartButton: {fileID: 0}
 --- !u!114 &1385707684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3572,10 +3573,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77e817ce3a60d6a4db66e54f20288b73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countdownPanel: {fileID: 0}
-  countdownText: {fileID: 0}
+  countdownPanel: {fileID: 1118706635}
+  countdownText: {fileID: 1247006703}
   countdownDuration: 5
-  textColor: {r: 0.667, g: 0, b: 0.784, a: 1}
+  textColor: {r: 0.14509805, g: 0.5294118, b: 0.9490197, a: 1}
 --- !u!1 &1457400464
 GameObject:
   m_ObjectHideFlags: 0
@@ -4751,39 +4752,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1962230877}
   m_CullTransparentMesh: 1
---- !u!1 &1968935619
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1968935620}
-  m_Layer: 0
-  m_Name: --- Network ---
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1968935620
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1968935619}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 879.6484, y: 410.3726, z: 2.3532753}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 296856752}
-  - {fileID: 1212943247}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2009993066
 GameObject:
   m_ObjectHideFlags: 0
@@ -5173,13 +5141,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: 90f89883f681fe642b34a555ca077504, type: 3}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 1385707683}
+        m_TargetAssemblyTypeName: HUDManager, Assembly-CSharp
+        m_MethodName: OnRestartButtonPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -5689,8 +5657,9 @@ SceneRoots:
   - {fileID: 1034811868}
   - {fileID: 1297889883}
   - {fileID: 982128644}
-  - {fileID: 1968935620}
-  - {fileID: 611255474}
+  - {fileID: 296856752}
+  - {fileID: 1212943247}
   - {fileID: 1165342283}
   - {fileID: 48240123}
   - {fileID: 1385707682}
+  - {fileID: 611255474}

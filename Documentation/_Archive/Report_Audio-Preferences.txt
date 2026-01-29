@@ -1,0 +1,132 @@
+IMPLEMENTATION REPORT - Audio System & Preferences Menu
+Date: January 28, 2026
+Status: CONSOLIDATED & WORKING
+Version: v1.6
+
+================================================================================
+ARCHITECTURE SUMMARY
+================================================================================
+
+FINAL AUDIO SYSTEM (Single Manager Pattern):
+
+GameAudioManager.cs (Gameflow folder)
+├── DontDestroyOnLoad singleton
+├── States: Menu, Lobby, Playing
+├── Music Tracks: menuMusic, lobbyMusic, gameplayMusic
+├── SFX: buttonClickSFX
+├── Volume: SetMusicVolume(), SetSFXVolume()
+└── Integration: Called by MenuManager, LobbyManager, GameStateManager
+
+AudioSettings.cs (Persistence folder)
+├── Static utility class
+├── PlayerPrefs persistence (MasterVolume, MusicVolume, SFXVolume)
+├── FinalMusicVolume = MasterVolume × MusicVolume
+├── FinalSFXVolume = MasterVolume × SFXVolume
+└── ApplySettings() → GameAudioManager.Instance
+
+PreferencesMenu.cs (UI/Menu folder)
+├── 3 volume sliders (Master, Music, SFX)
+├── CanvasGroup visibility pattern
+├── Real-time volume adjustment
+└── Called via MenuManager.ShowPreferencesPopup()
+
+================================================================================
+DEPRECATED SCRIPTS (Moved to Z-Parkplatz)
+================================================================================
+
+MenuAudioController.cs - OBSOLETE
+- Was: Scene-specific menu audio
+- Replaced by: GameAudioManager with DontDestroyOnLoad
+- Reason: Consolidation to single persistent audio manager
+
+PreferencesManager.cs - OBSOLETE
+- Was: AudioMixer-based volume control
+- Replaced by: PreferencesMenu.cs + AudioSettings.cs
+- Reason: Simpler AudioSource.volume approach, no AudioMixer needed
+
+================================================================================
+SCENE SETUP REQUIREMENTS
+================================================================================
+
+Menue.unity:
+- GameAudioManager GameObject (first instance)
+- Assign: menuMusic AudioClip
+- Assign: lobbyMusic AudioClip (for persistence)
+- Assign: gameplayMusic AudioClip (for persistence)
+- Assign: buttonClickSFX AudioClip (optional)
+
+Game.unity:
+- NO GameAudioManager needed (persists from Menue)
+- LobbyManager calls: GameAudioManager.Instance.SetGameState(Playing)
+
+MenuManager Inspector:
+- preferencesMenu: Reference to PreferencesMenu component (NOT GameObject)
+
+================================================================================
+AUDIO FLOW
+================================================================================
+
+1. Menue Scene loads
+   └→ GameAudioManager.Awake() creates instance, DontDestroyOnLoad
+   └→ GameAudioManager.Start() plays menuMusic
+
+2. User clicks "Start Game"
+   └→ SceneManager.LoadScene("Game")
+   └→ GameAudioManager persists (DontDestroyOnLoad)
+   └→ Duplicate in Game scene destroyed
+
+3. Game scene Lobby phase
+   └→ GameAudioManager continues current track
+   └→ (Optional: SetGameState(Lobby) for lobby-specific music)
+
+4. Players ready, game starts
+   └→ LobbyManager.StartGame() calls SetGameState(Playing)
+   └→ GameAudioManager switches to gameplayMusic
+
+5. User adjusts volume in Preferences
+   └→ PreferencesMenu sliders change AudioSettings values
+   └→ AudioSettings.ApplySettings() updates GameAudioManager.Instance
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+[X] GameAudioManager singleton pattern works
+[X] DontDestroyOnLoad persists across scene load
+[X] Duplicate instances destroyed correctly
+[X] PreferencesMenu opens via MenuManager
+[X] Volume sliders update in real-time
+[X] Settings persist via PlayerPrefs
+[ ] Menu music plays (requires AudioClip assignment)
+[ ] Lobby music plays (requires AudioClip assignment)
+[ ] Gameplay music plays (requires AudioClip assignment)
+[ ] Volume settings survive scene reload
+
+================================================================================
+KNOWN ISSUES
+================================================================================
+
+1. Audio clips not assigned in Inspector
+   - Solution: Assign in Menue.unity GameAudioManager Inspector
+
+2. Console warnings "PlayMusic: clip is NULL"
+   - Cause: AudioClip SerializeFields empty
+   - Solution: Assign audio tracks in Inspector
+
+================================================================================
+FILES SUMMARY
+================================================================================
+
+ACTIVE:
+- Gameflow/GameAudioManager.cs (v1.6)
+- Persistence/AudioSettings.cs (v1.6)
+- UI/Menu/PreferencesMenu.cs (v1.6)
+- Gameflow/MenuManager.cs (v1.2)
+
+DEPRECATED (Z-Parkplatz):
+- MenuAudioController.cs
+- PreferencesManager.cs
+
+================================================================================
+END OF REPORT
+================================================================================

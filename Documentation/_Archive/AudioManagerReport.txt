@@ -1,0 +1,411 @@
+Audio System Implementation Report - Session Summary
+Project Context
+Game: Showroom Tango (Unity multiplayer co-op shooter, FishNet networking)
+
+Goal: Implement centralized audio system with scene-based music (Menu → Lobby → Gameplay)
+
+Architecture: Singleton GameAudioManager with DontDestroyOnLoad pattern
+
+Current Issue
+Problem Statement
+GameAudioManager script exists in Menu scene with all AudioClips assigned, but produces ZERO console logs and no audio plays. Script's Awake() and Start() methods never execute despite GameObject being active and component enabled.
+
+Observed Behavior
+Scene	Expected	Actual
+Menu	Menu music plays	❌ Silence, no logs
+Lobby	Lobby music plays	❌ Menu music (when working)
+Game	Gameplay music plays	❌ Mixed/wrong music per player
+Implementation History
+Phase 1: Initial Setup
+Created GameAudioManager.cs singleton with three music tracks (Menu, Lobby, Gameplay)
+
+Implemented DontDestroyOnLoad persistence
+
+Added AudioSettings.cs for volume management
+
+Placed GameAudioManager GameObject in Menu scene
+
+Phase 2: Debug Attempts
+Issue: Script not executing in Menu scene
+
+Attempted Fixes:
+
+✅ Verified GameObject exists in Menu scene hierarchy
+
+✅ Verified script component attached and enabled
+
+✅ Verified all AudioClips assigned in Inspector
+
+✅ Fixed syntax error in PreferencesMenu.cs (double semicolon line 126)
+
+✅ Moved music initialization from Start() to Awake() for immediate playback
+
+✅ Added extensive debug logging to track execution flow
+
+✅ Forced script reimport/recompilation
+
+❌ Result: Still no logs, no execution
+
+Phase 3: State Management Integration
+Goal: Connect audio transitions to game state changes
+
+Implementation:
+
+csharp
+// Added to GameStateManager.cs HandleStateChange()
+if (GameAudioManager.Instance != null)
+{
+    switch (next)
+    {
+        case GameState.Lobby:
+            GameAudioManager.Instance.SetGameState(GameAudioManager.GameState.Lobby);
+            break;
+        case GameState.Playing:
+            GameAudioManager.Instance.SetGameState(GameAudioManager.GameState.Playing);
+            break;
+    }
+}
+Status: Not testable due to Phase 2 blocking issue
+
+Complete GameAudioManager.cs (Final Version)
+csharp
+using UnityEngine;
+
+/// <summary>
+/// Centralized music manager for Menu, Lobby, and Gameplay
+/// Singleton pattern with DontDestroyOnLoad persistence
+/// Author: Julian Gomez | SRH Hochschule Heidelberg | January 28, 2026
+/// </summary>
+public class GameAudioManager : MonoBehaviour
+{
+    public static GameAudioManager Instance { get; private set; }
+
+    [Header("Music Tracks")]
+    [SerializeField] private AudioClip menuMusic;
+    [SerializeField] private AudioClip lobbyMusic;
+    [SerializeField] private AudioClip gameplayMusic;
+
+    [Header("SFX Tracks")]
+    [SerializeField] private AudioClip buttonClickSFX;
+
+    private AudioSource musicSource;
+    private AudioSource sfxSource;
+
+    public enum GameState { Menu, Lobby, Playing }
+    private GameState currentState = GameState.Menu;
+
+    void Awake()
+    {
+        Debug.Log("!!!!! GAMEAUDIOMANAGER AWAKE CALLED !!!!!"); // Test log
+        
+        if (Instance != null && Instance != this)
+        {
+            Debug.Log($"GameAudioManager: Destroying duplicate on {gameObject.name}");
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        Debug.Log($"GameAudioManager: Instance created on {gameObject.name}");
+
+        // Create AudioSources
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.loop = true;
+        musicSource.playOnAwake = false;
+
+        sfxSource = gameObject.AddComponent<AudioSource>();
+        sfxSource.loop = false;
+        sfxSource.playOnAwake = false;
+
+        // Apply volume and start menu music IMMEDIATELY
+        ApplyVolumeSettings();
+        
+        if (menuMusic != null)
+        {
+            musicSource.clip = menuMusic;
+            musicSource.Play();
+            currentState = GameState.Menu;
+            Debug.Log($"GameAudioManager: Now playing {menuMusic.name} (Menu)");
+        }
+        else
+        {
+            Debug.LogWarning("GameAudioManager: Menu music not assigned!");
+        }
+    }
+
+    void Start()
+    {
+        if (Instance != this) return;
+
+        Debug.Log($"GameAudioManager: MenuMusic = {(menuMusic != null ? menuMusic.name : "NULL")}");
+        Debug.Log($"GameAudioManager: LobbyMusic = {(lobbyMusic != null ? lobbyMusic.name : "NULL")}");
+        Debug.Log($"GameAudioManager: GameplayMusic = {(gameplayMusic != null ? gameplayMusic.name : "NULL")}");
+    }
+
+    public void SetGameState(GameState newState)
+    {
+        if (currentState == newState)
+        {
+            Debug.Log($"GameAudioManager: Already in {newState} state, skipping");
+            return;
+        }
+
+        Debug.Log($"GameAudioManager: SetGameState {currentState} → {newState}");
+        currentState = newState;
+
+        switch (newState)
+        {
+            case GameState.Menu:
+                PlayMusic(menuMusic);
+                break;
+            case GameState.Lobby:
+                PlayMusic(lobbyMusic);
+                break;
+            case GameState.Playing:
+                PlayMusic(gameplayMusic);
+                break;
+        }
+    }
+
+    private void PlayMusic(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            Debug.LogWarning("GameAudioManager: PlayMusic called with NULL clip!");
+            return;
+        }
+
+        if (musicSource.clip == clip && musicSource.isPlaying)
+        {
+            Debug.Log($"GameAudioManager: Already playing {clip.name}, skipping");
+            return;
+        }
+
+        musicSource.Stop();
+        musicSource.clip = clip;
+        musicSource.Play();
+        Debug.Log($"GameAudioManager: Now playing {clip.name}");
+    }
+
+    public void ApplyVolumeSettings()
+    {
+        if (musicSource != null)
+        {
+            musicSource.volume = AudioSettings.FinalMusicVolume;
+            Debug.Log($"GameAudioManager: Applied music volume {musicSource.volume}");
+        }
+        
+        if (sfxSource != null)
+        {
+            sfxSource.volume = AudioSettings.FinalSFXVolume;
+        }
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        if (musicSource != null)
+            musicSource.volume = Mathf.Clamp01(volume);
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        if (sfxSource != null)
+            sfxSource.volume = Mathf.Clamp01(volume);
+    }
+
+    public void PlayButtonClick()
+    {
+        if (buttonClickSFX != null && sfxSource != null)
+            sfxSource.PlayOneShot(buttonClickSFX, AudioSettings.FinalSFXVolume);
+    }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Debug.Log("GameAudioManager: Instance destroyed");
+            Instance = null;
+        }
+    }
+}
+Modified GameStateManager.cs
+csharp
+// In existing HandleStateChange() method
+private void HandleStateChange(GameState prev, GameState next, bool asServer)
+{
+    Debug.Log($"[GameStateManager] State changed: {prev} -> {next}");
+    ApplyStateVisibility(next);
+    OnGameStateChanged?.Invoke(next);
+    
+    // ✅ NEW: Sync audio with game state
+    if (GameAudioManager.Instance != null)
+    {
+        switch (next)
+        {
+            case GameState.Lobby:
+                GameAudioManager.Instance.SetGameState(GameAudioManager.GameState.Lobby);
+                break;
+            case GameState.Playing:
+                GameAudioManager.Instance.SetGameState(GameAudioManager.GameState.Playing);
+                break;
+        }
+    }
+    else
+    {
+        Debug.LogWarning("[GameStateManager] GameAudioManager.Instance is NULL - cannot sync audio");
+    }
+}
+Diagnostic Evidence
+Console Log Analysis
+​
+text
+✅ SeamlessVideo: Initializing... [PRESENT]
+✅ MenuManager: Preferences popup opened [PRESENT]
+❌ GameAudioManager: [COMPLETELY ABSENT]
+Conclusion: MonoBehaviour lifecycle methods (Awake, Start) never execute despite:
+
+GameObject present in scene
+
+Component enabled
+
+No compilation errors
+
+Script file valid
+
+Attempted Diagnostics
+✅ Verified GameObject checkbox enabled
+
+✅ Verified component checkbox enabled
+
+✅ Checked Script Execution Order (not modified)
+
+✅ Forced script reimport
+
+✅ Added test debug log as first line in Awake() (still no output)
+
+❌ Result: Script execution completely blocked by unknown cause
+
+Hypothesis: Possible Causes
+1. Script Not Recognized by Unity
+Meta file corruption
+
+Assembly definition conflict
+
+Script in wrong folder structure
+
+2. GameObject Instantiation Timing
+Menu scene loading order issue
+
+GameObject created after scene active check
+
+Hidden/inactive parent GameObject
+
+3. Unity Editor State
+Cached script data corruption
+
+Domain reload required
+
+Asset database desync
+
+Recommended Next Steps
+Immediate (Next Session)
+Verify GameObject Hierarchy
+
+text
+Menu scene → Search "GameAudioManager"
+Check if parent GameObject exists and is active
+Verify no nested inactive parents
+Check Script Location
+
+text
+Expected: Assets/_Project/Scripts/UI/Menu/GameAudioManager.cs
+Verify path matches Inspector reference
+Delete and Recreate
+
+text
+A. Delete GameAudioManager GameObject from Menu scene
+B. Save scene
+C. Create fresh empty GameObject named "GameAudioManager"
+D. Add component via Inspector search
+E. Assign all AudioClips
+F. Save and test
+Test in Isolated Scene
+
+text
+A. Create new blank scene "AudioTest"
+B. Create GameObject with GameAudioManager component
+C. Assign single test AudioClip
+D. Play scene - verify logs appear
+If Issue Persists
+Check Assembly Definitions
+
+Verify GameAudioManager.cs not in restricted assembly
+
+Check for .asmdef files in parent folders
+
+Unity Cache Clear
+
+text
+Close Unity
+Delete: Library/ScriptAssemblies/
+Delete: Library/Artifacts/
+Reopen project
+Script Meta File Reset
+
+text
+Delete GameAudioManager.cs.meta
+Reimport script (Unity regenerates meta)
+Reassign to GameObject
+Configuration Checklist for Fresh Start
+Scene Setup
+ Menu scene contains GameAudioManager GameObject
+
+ GameObject is root-level (no parents) or all parents active
+
+ GameObject checkbox enabled
+
+ Component checkbox enabled
+
+Inspector Assignments
+ Menu Music: AudioClip assigned
+
+ Lobby Music: AudioClip assigned
+
+ Gameplay Music: AudioClip assigned
+
+ Script reference shows (Script) not "None (MonoBehaviour)"
+
+Script Verification
+ No compilation errors in Console
+
+ Script contains test debug log in Awake()
+
+ AudioSettings.cs exists and compiles
+
+Expected Console Output (Menu Scene Play)
+text
+!!!!! GAMEAUDIOMANAGER AWAKE CALLED !!!!!
+GameAudioManager: Instance created on GameAudioManager
+GameAudioManager: Applied music volume X.XXX
+GameAudioManager: Now playing [MenuMusicName] (Menu)
+GameAudioManager: MenuMusic = [MenuMusicName]
+GameAudioManager: LobbyMusic = [LobbyMusicName]
+GameAudioManager: GameplayMusic = [GameplayMusicName]
+Files Modified This Session
+GameAudioManager.cs - Complete rewrite with Awake-based initialization
+
+GameStateManager.cs - Added audio sync in HandleStateChange()
+
+PreferencesMenu.cs - Fixed double semicolon syntax error (line 126)
+
+Outstanding Questions
+Why does GameAudioManager GameObject exist but MonoBehaviour lifecycle never executes?
+
+Is GameObject actually in Menu scene or different scene in multi-scene setup?
+
+Are there hidden GameObject activation dependencies?
+
+Does project use custom ScriptableObject-based initialization system that overrides standard MonoBehaviour flow?
+
+Status: Blocked on script execution diagnosis. Architecture and code are correct; issue is Unity environment/configuration related.

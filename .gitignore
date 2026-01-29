@@ -87,3 +87,6 @@ crashlytics-build.properties
 ehthumbs.db
 Thumbs.db
 nul
+
+# Claude AI Assistant
+.claude/
